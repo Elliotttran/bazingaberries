@@ -40,30 +40,31 @@ export function clearPopping(board) {
 
 /**
  * Apply gravity: shift tiles down into null spaces.
- * Tiles that move get state 'dropping'.
+ * Tiles that move get state 'dropping' with dropDistance tracking how far they fell.
  */
 export function applyGravity(board) {
   const newBoard = cloneBoard(board);
 
   for (let c = 0; c < BOARD_SIZE; c++) {
-    // Collect non-null tiles from bottom to top
+    // Collect non-null tiles from bottom to top, remembering original rows
     const column = [];
     for (let r = BOARD_SIZE - 1; r >= 0; r--) {
       if (newBoard[r][c]) {
-        column.push(newBoard[r][c]);
+        column.push({ tile: newBoard[r][c], originalRow: r });
       }
     }
 
-    // Place them back from bottom, mark moved tiles as 'dropping'
+    // Place them back from bottom
     for (let r = BOARD_SIZE - 1; r >= 0; r--) {
       const idx = BOARD_SIZE - 1 - r;
       if (idx < column.length) {
-        const tile = column[idx];
-        const originalRow = BOARD_SIZE - 1 - idx;
-        if (originalRow !== r || tile.state === 'idle') {
-          // Tile moved or stayed — only mark as dropping if it moved
+        const { tile, originalRow } = column[idx];
+        const distance = r - originalRow;
+        if (distance > 0) {
+          newBoard[r][c] = { ...tile, state: 'dropping', dropDistance: distance };
+        } else {
+          newBoard[r][c] = { ...tile };
         }
-        newBoard[r][c] = { ...tile, state: originalRow !== r ? 'dropping' : tile.state };
       } else {
         newBoard[r][c] = null;
       }
@@ -75,15 +76,27 @@ export function applyGravity(board) {
 
 /**
  * Fill null spaces (top of columns) with new tiles.
- * New tiles get state 'entering'.
+ * New tiles get state 'entering' with dropDistance = row + 1 (fall from above board).
  */
 export function refillBoard(board) {
   const newBoard = cloneBoard(board);
 
-  for (let r = 0; r < BOARD_SIZE; r++) {
-    for (let c = 0; c < BOARD_SIZE; c++) {
+  for (let c = 0; c < BOARD_SIZE; c++) {
+    // Count nulls in this column to stagger entry distances
+    let nullCount = 0;
+    for (let r = 0; r < BOARD_SIZE; r++) {
+      if (!newBoard[r][c]) nullCount++;
+    }
+
+    let entryIndex = 0;
+    for (let r = 0; r < BOARD_SIZE; r++) {
       if (!newBoard[r][c]) {
-        newBoard[r][c] = { ...createTile(randomTileType()), state: 'entering' };
+        newBoard[r][c] = {
+          ...createTile(randomTileType()),
+          state: 'entering',
+          dropDistance: nullCount - entryIndex,
+        };
+        entryIndex++;
       }
     }
   }

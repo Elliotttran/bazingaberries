@@ -2,8 +2,55 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  height: 100%;
+}
+
+/* Top: fills available space above game, logo pinned to bottom */
+.game-shell__top {
+  flex: 1;
+  display: flex;
+  align-items: flex-end;
   justify-content: center;
-  min-height: 100%;
-  padding: 12px;
-  gap: 4px;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.game-shell__logo {
+  width: min(70vw, 360px);
+  object-fit: contain;
+  margin-bottom: -8px;
+}
+
+/* Center: the game itself (HUD + board) — not flex-grow, stays auto-sized */
+.game-shell__game {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Bottom: matches top to keep game centered */
+.game-shell__bottom {
+  flex: 1;
+}
+
+.game-shell__board-area {
+  position: relative;
+}
+
+/* Board shake for hype events */
+.game-shell--shaking {
+  animation: shell-shake 500ms ease-in-out;
+}
+
+@keyframes shell-shake {
+  0%, 100% { transform: translate(0, 0); }
+  10%      { transform: translate(-3px, -2px); }
+  20%      { transform: translate(4px, 1px); }
+  30%      { transform: translate(-2px, 3px); }
+  40%      { transform: translate(3px, -3px); }
+  50%      { transform: translate(-4px, 2px); }
+  60%      { transform: translate(2px, -1px); }
+  70%      { transform: translate(-3px, 3px); }
+  80%      { transform: translate(4px, -2px); }
+  90%      { transform: translate(-2px, 1px); }
 }

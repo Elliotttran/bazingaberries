@@ -1,0 +1,29 @@
+.rolodex {
+  display: flex;
+  gap: 1px;
+  font-weight: 800;
+  font-size: 1.4rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.rolodex__window {
+  overflow: hidden;
+  height: 1.6em;
+  width: 0.75em;
+}
+
+.rolodex__window--dim {
+  opacity: 0.2;
+}
+
+.rolodex__strip {
+  transition: transform 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.rolodex__digit {
+  height: 1.6em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}

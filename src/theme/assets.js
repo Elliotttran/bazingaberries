@@ -10,6 +10,9 @@ const assets = {
 
   // Phase 2: tile type → image path for berry sprites
   images: {},
+
+  // Future: hype type → video URL for Sora integration
+  hypeVideos: {},
 };
 
 export default assets;

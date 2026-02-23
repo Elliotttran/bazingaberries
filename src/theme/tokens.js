@@ -8,39 +8,32 @@ const tokens = {
   },
 
   tiles: [
-    { // 0 — Strawberry Red
-      gradient: 'radial-gradient(circle at 35% 35%, #ff6b6b, #c0392b)',
-      shadow: '0 4px 8px rgba(192,57,43,0.5)',
+    { // 0 — Strawberry
+      image: '/img/strawberry.png',
       glowColor: 'rgba(255,107,107,0.8)',
     },
-    { // 1 — Blueberry Blue
-      gradient: 'radial-gradient(circle at 35% 35%, #74b9ff, #2980b9)',
-      shadow: '0 4px 8px rgba(41,128,185,0.5)',
+    { // 1 — Blueberry
+      image: '/img/blueberry.png',
       glowColor: 'rgba(116,185,255,0.8)',
     },
-    { // 2 — Grape Purple
-      gradient: 'radial-gradient(circle at 35% 35%, #a29bfe, #6c5ce7)',
-      shadow: '0 4px 8px rgba(108,92,231,0.5)',
+    { // 2 — Grape
+      image: '/img/grape.png',
       glowColor: 'rgba(162,155,254,0.8)',
     },
-    { // 3 — Lemon Yellow
-      gradient: 'radial-gradient(circle at 35% 35%, #ffeaa7, #fdcb6e)',
-      shadow: '0 4px 8px rgba(253,203,110,0.5)',
+    { // 3 — Banana
+      image: '/img/banana.png',
       glowColor: 'rgba(255,234,167,0.8)',
     },
-    { // 4 — Lime Green
-      gradient: 'radial-gradient(circle at 35% 35%, #55efc4, #00b894)',
-      shadow: '0 4px 8px rgba(0,184,148,0.5)',
+    { // 4 — Kiwi
+      image: '/img/kiwi.png',
       glowColor: 'rgba(85,239,196,0.8)',
     },
-    { // 5 — Tangerine Orange
-      gradient: 'radial-gradient(circle at 35% 35%, #fab1a0, #e17055)',
-      shadow: '0 4px 8px rgba(225,112,85,0.5)',
+    { // 5 — Orange
+      image: '/img/orange.png',
       glowColor: 'rgba(250,177,160,0.8)',
     },
-    { // 6 — Bubblegum Pink
-      gradient: 'radial-gradient(circle at 35% 35%, #fd79a8, #e84393)',
-      shadow: '0 4px 8px rgba(232,67,147,0.5)',
+    { // 6 — Cherry
+      image: '/img/cherry.png',
       glowColor: 'rgba(253,121,168,0.8)',
     },
   ],
@@ -51,11 +44,12 @@ const tokens = {
 
   animation: {
     popDuration: '280ms',
-    dropDuration: '200ms',
-    dropEasing: 'cubic-bezier(0.4, 0, 0.2, 1)',
+    dropDuration: '350ms',
+    dropEasing: 'cubic-bezier(0.34, 1.56, 0.64, 1)',
+    swapDuration: '200ms',
     shakeDuration: '300ms',
     selectPulseDuration: '800ms',
-    bazingaOverlayDuration: '900ms',
+    hypeOverlayDuration: '1200ms',
   },
 
   hud: {
@@ -67,7 +61,7 @@ const tokens = {
 
   bazinga: {
     color: '#ffeaa7',
-    fontSize: 'clamp(2rem, 8vw, 4rem)',
+    fontSize: 'clamp(2rem, 10vw, 4.5rem)',
     fontWeight: '900',
     textShadow: '0 0 20px rgba(255,234,167,0.6), 0 4px 8px rgba(0,0,0,0.5)',
   },
