@@ -1,0 +1,51 @@
+.hud {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: min(90vw, 90vh, 480px);
+  padding: 8px 4px;
+}
+
+.hud__title {
+  font-size: 1.1rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  background: linear-gradient(135deg, #ffeaa7, #fd79a8);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hud__stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.hud__label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  opacity: 0.6;
+}
+
+.hud__value {
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+
+.hud__right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.hud__mute {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 4px;
+  line-height: 1;
+}
