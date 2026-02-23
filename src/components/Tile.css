@@ -48,51 +48,74 @@
   z-index: 10;
 }
 
-/* Popping — "Bazinga Pop" with berry splat particles */
+/* Popping — berry implodes inward then bursts as juice */
 .tile--popping {
-  animation: bazinga-pop 280ms ease-out forwards;
+  animation: bazinga-pop 360ms linear forwards;
   pointer-events: none;
 }
 
+/* Juice ripple ring — expands outward like a liquid shockwave */
+.tile--popping::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 4px solid var(--tile-color);
+  background: transparent;
+  animation: juice-ring 400ms ease-out forwards;
+  pointer-events: none;
+}
+
+/* Juice droplets — irregular blobs, not clean dots */
 .tile--popping::after {
   content: '';
   position: absolute;
   inset: 0;
   border-radius: 50%;
-  animation: berry-splat 350ms ease-out forwards;
+  animation: juice-splat 420ms ease-out forwards;
   pointer-events: none;
 }
 
 @keyframes bazinga-pop {
   0%   { transform: scale(1);    opacity: 1; }
-  20%  { transform: scale(0.88); opacity: 1; }
-  45%  { transform: scale(1.15); opacity: 0.9; }
+  10%  { transform: scale(0.28); opacity: 1; }   /* snap — instant collapse */
+  14%  { transform: scale(0.28); opacity: 1; }   /* hold so eye registers the implosion */
+  36%  { transform: scale(1.6);  opacity: 0.8; } /* explosive burst */
   100% { transform: scale(0);    opacity: 0; }
 }
 
-@keyframes berry-splat {
+@keyframes juice-ring {
+  0%   { transform: scale(0.2); opacity: 1;   border-width: 5px; }
+  50%  { transform: scale(1.8); opacity: 0.5; border-width: 2px; }
+  100% { transform: scale(2.8); opacity: 0;   border-width: 1px; }
+}
+
+@keyframes juice-splat {
   0% {
     box-shadow:
-      0 0 0 0 var(--tile-color),
-      0 0 0 0 var(--tile-color),
-      0 0 0 0 var(--tile-color),
-      0 0 0 0 var(--tile-color),
-      0 0 0 0 var(--tile-color),
-      0 0 0 0 var(--tile-color),
-      0 0 0 0 var(--tile-color),
-      0 0 0 0 var(--tile-color);
+      0 0 0 0px var(--tile-color),
+      0 0 0 0px var(--tile-color),
+      0 0 0 0px var(--tile-color),
+      0 0 0 0px var(--tile-color),
+      0 0 0 0px var(--tile-color),
+      0 0 0 0px var(--tile-color),
+      0 0 0 0px var(--tile-color),
+      0 0 0 0px var(--tile-color);
     opacity: 1;
   }
+  25% { opacity: 1; }
   100% {
     box-shadow:
-      -18px -18px 0 2px var(--tile-color),
-       18px -16px 0 1px var(--tile-color),
-      -20px  10px 0 2px var(--tile-color),
-       16px  18px 0 1px var(--tile-color),
-       0px  -22px 0 2px var(--tile-color),
-       0px   20px 0 1px var(--tile-color),
-      -22px  0px  0 1px var(--tile-color),
-       22px  0px  0 2px var(--tile-color);
+      /* large blobs — main juice splashes */
+      -30px -28px 5px 4px var(--tile-color),
+       28px -32px 4px 5px var(--tile-color),
+      -36px  14px 6px 3px var(--tile-color),
+       10px  36px 5px 4px var(--tile-color),
+      /* small droplets — trailing juice */
+        2px -40px 2px 1px var(--tile-color),
+       38px  10px 2px 1px var(--tile-color),
+      -14px  38px 2px 2px var(--tile-color),
+      -40px  -6px 2px 1px var(--tile-color);
     opacity: 0;
   }
 }
