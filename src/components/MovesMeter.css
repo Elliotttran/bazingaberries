@@ -6,68 +6,87 @@
 .moves-meter__track {
   position: relative;
   width: 100%;
-  height: 28px;
-  background: rgba(0, 0, 0, 0.3);
-  border-radius: 14px;
-  border: 3px solid rgba(255, 255, 255, 0.15);
+  height: 18px;
+  background: rgba(20, 8, 2, 0.55);
+  border-radius: 10px;
+  border: 2px solid rgba(160, 110, 40, 0.4);
+  box-shadow:
+    inset 0 3px 6px rgba(0, 0, 0, 0.5),
+    inset 0 1px 2px rgba(0, 0, 0, 0.3),
+    0 1px 0 rgba(255, 220, 140, 0.1);
   overflow: hidden;
   box-sizing: border-box;
 }
 
+/* Berry juice fill */
 .moves-meter__fill {
   position: absolute;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  border-radius: 11px;
-  background: linear-gradient(90deg, #fd79a8, #ffeaa7, #55efc4);
+  top: 2px;
+  left: 2px;
+  bottom: 2px;
+  border-radius: 7px;
+  background: linear-gradient(
+    90deg,
+    #8e1a5a,
+    #c2185b,
+    #e84393,
+    #fd79a8
+  );
   transition: width 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-.moves-meter__glow {
+/* Glossy sheen on top half of the fill */
+.moves-meter__sheen {
   position: absolute;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  border-radius: 11px;
-  background: linear-gradient(90deg, rgba(253, 121, 168, 0.3), rgba(255, 234, 167, 0.4), rgba(85, 239, 196, 0.3));
-  filter: blur(6px);
+  top: 2px;
+  left: 2px;
+  height: 45%;
+  border-radius: 7px 7px 50% 50%;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.35) 0%,
+    rgba(255, 255, 255, 0.05) 100%
+  );
   transition: width 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
   pointer-events: none;
 }
 
-.moves-meter__label {
+/* Soft glow behind the fill */
+.moves-meter__glow {
   position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.75rem;
-  font-weight: 800;
-  letter-spacing: 0.5px;
-  color: #fff;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
-  z-index: 1;
+  top: 0;
+  left: 2px;
+  bottom: 0;
+  border-radius: 7px;
+  background: linear-gradient(
+    90deg,
+    rgba(142, 26, 90, 0.3),
+    rgba(232, 67, 147, 0.4),
+    rgba(253, 121, 168, 0.3)
+  );
+  filter: blur(4px);
+  transition: width 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  pointer-events: none;
 }
 
-/* Low moves warning */
+/* ── Low moves warning ── */
 .moves-meter--low .moves-meter__track {
-  border-color: rgba(255, 107, 107, 0.4);
+  border-color: rgba(255, 80, 60, 0.5);
 }
 
 .moves-meter--low .moves-meter__fill {
-  background: linear-gradient(90deg, #e17055, #ff6b6b);
+  background: linear-gradient(90deg, #b71c1c, #e53935, #ff6b6b);
 }
 
 .moves-meter--low .moves-meter__glow {
-  background: rgba(255, 107, 107, 0.4);
+  background: rgba(255, 80, 60, 0.35);
 }
 
 .moves-meter--low .moves-meter__track {
-  animation: moves-low-pulse 600ms ease-in-out infinite;
+  animation: juice-pulse 600ms ease-in-out infinite;
 }
 
-@keyframes moves-low-pulse {
-  0%, 100% { border-color: rgba(255, 107, 107, 0.4); }
-  50% { border-color: rgba(255, 107, 107, 0.7); }
+@keyframes juice-pulse {
+  0%, 100% { border-color: rgba(255, 80, 60, 0.4); }
+  50% { border-color: rgba(255, 80, 60, 0.7); }
 }

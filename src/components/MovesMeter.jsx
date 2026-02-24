@@ -12,8 +12,8 @@ export default function MovesMeter({ movesLeft }) {
           className="moves-meter__fill"
           style={{ width: `${pct}%` }}
         />
+        <div className="moves-meter__sheen" style={{ width: `${pct}%` }} />
         <div className="moves-meter__glow" style={{ width: `${pct}%` }} />
-        <span className="moves-meter__label">{movesLeft} moves</span>
       </div>
     </div>
   );
