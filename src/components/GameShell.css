@@ -35,6 +35,7 @@
 
 .game-shell__board-area {
   position: relative;
+  margin-top: 60px;
 }
 
 /* Board shake for hype events */

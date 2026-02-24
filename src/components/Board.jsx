@@ -1,21 +1,19 @@
+import { forwardRef } from 'react';
 import { BOARD_SIZE } from '../constants.js';
 import tokens from '../theme/tokens.js';
 import Tile from './Tile.jsx';
 import './Board.css';
 
-export default function Board({ board, selected, swappingTiles, onTileClick }) {
+const Board = forwardRef(function Board({ board, selected, swappingTiles, onTileClick }, ref) {
   const boardStyle = {
-    background: tokens.board.background,
     padding: tokens.board.padding,
-    borderRadius: tokens.board.borderRadius,
-    boxShadow: tokens.board.boxShadow,
     gap: tokens.board.gap,
     gridTemplateColumns: `repeat(${BOARD_SIZE}, 1fr)`,
     gridTemplateRows: `repeat(${BOARD_SIZE}, 1fr)`,
   };
 
   return (
-    <div className="board" style={boardStyle}>
+    <div className="board" ref={ref} style={boardStyle}>
       {board.map((row, r) =>
         row.map((tile, c) => {
           const isSelected = selected && selected.row === r && selected.col === c;
@@ -44,4 +42,6 @@ export default function Board({ board, selected, swappingTiles, onTileClick }) {
       )}
     </div>
   );
-}
+});
+
+export default Board;

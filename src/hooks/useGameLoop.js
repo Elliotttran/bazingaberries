@@ -10,20 +10,22 @@ export default function useGameLoop({
   setBoard, addScore, setResolving, setHypeEvent, addFloatingScore, comboCount,
 }) {
   const chainDepthRef = useRef(0);
-  const totalWavesRef = useRef(0);
   const lastHypeTimeRef = useRef(0);
   const hypeTimeoutRef = useRef(null);
+  const streakRef = useRef(1);   // initial move streak, stays constant per resolution
+  const dubbaRef = useRef(false); // whether first wave had 2+ simultaneous match groups
 
   const resolveBoard = useCallback((currentBoard, currentCombo, onComplete) => {
     setResolving(true);
     chainDepthRef.current = 0;
-    totalWavesRef.current = 0;
+    streakRef.current = currentCombo || 1;
+    dubbaRef.current = false;
 
     function resolveStep(board, runningCombo) {
       const matchGroups = findMatchGroups(board);
 
       if (DEBUG) {
-        console.log(`[RESOLVE] chainDepth=${chainDepthRef.current}, combo=${runningCombo}, matches=${matchGroups.length}`);
+        console.log(`[RESOLVE] chainDepth=${chainDepthRef.current}, streak=${streakRef.current}, dubba=${dubbaRef.current}, matches=${matchGroups.length}`);
       }
 
       if (matchGroups.length === 0) {
@@ -40,7 +42,10 @@ export default function useGameLoop({
         return;
       }
 
-      totalWavesRef.current++;
+      // Detect Double Doocer on the first wave
+      if (chainDepthRef.current === 0 && matchGroups.length >= 2) {
+        dubbaRef.current = true;
+      }
 
       // Calculate score with running combo (cascades build combo)
       const { points, multiplier } = calculateWaveScore(
@@ -56,8 +61,15 @@ export default function useGameLoop({
       // Sound: pop once per wave
       SoundManager.play('pop');
 
-      // Check hype event with running combo
-      const hype = getHypeEvent(runningCombo, chainDepthRef.current, totalWavesRef.current);
+      // Check hype event — pass streak, chain depth, group count, dubba flag, and group sizes
+      const groupSizes = matchGroups.map(g => g.length);
+      const hype = getHypeEvent(
+        streakRef.current,
+        chainDepthRef.current,
+        matchGroups.length,
+        dubbaRef.current,
+        groupSizes,
+      );
       if (hype) {
         const now = Date.now();
         if (now - lastHypeTimeRef.current > HYPE_THROTTLE) {

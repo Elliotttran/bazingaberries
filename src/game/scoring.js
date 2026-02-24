@@ -5,6 +5,8 @@ import {
   CASCADE_MULTIPLIERS,
   COMBO_MULTIPLIERS,
   MULTI_MATCH_MULTIPLIER,
+  // eslint-disable-next-line no-unused-vars
+  STREAK_TIERS, CHAIN_TIERS, // imported for reference — logic is inline below
 } from '../constants.js';
 
 /**
@@ -75,26 +77,79 @@ export function calculateWaveScore(matchGroups, chainDepth, comboCount) {
 
 /**
  * Determine the hype event for this wave, if any.
- * Returns { type, text, intensity } or null.
+ *
+ * Two independent systems:
+ *
+ * CASCADE CHAIN — fires on every wave. DUBBA (2+ simultaneous match groups
+ * at chainDepth 0) counts as chain level 2. Each subsequent cascade wave
+ * advances the chain by 1. If a DUBBA occurred earlier in this move,
+ * all subsequent depths get +1.
+ *   chain 2 → ANOTHER ONE!  chain 3 → Triple!
+ *   chain 4 → Quadruple!    chain 5+ → Quintuple!
+ *
+ * MOVE STREAK — fires only on the first wave (chainDepth 0) with a single
+ * match group (no DUBBA). Driven by streakCombo (consecutive swap count).
+ *   2 → Heating  3 → On Fire  4-5 → Bazingaberry!
+ *   6-8 → Mega Bazingaberry!  9+ → BAZILLIONAIRE!
+ *
+ * BIG MATCH — fires when any single group in the wave has 4 or 5+ tiles.
+ * Takes priority over streak but not over cascade chain.
+ *   4-tile → 'Juicy!' (TODO: rename)  5+ tile → 'MEGA MATCH!' (TODO: rename)
+ *
+ * @param {number} streakCombo   - move streak count (stays constant per move)
+ * @param {number} chainDepth    - 0-indexed wave depth within this move's resolution
+ * @param {number} matchGroupCount - how many separate match groups fired this wave
+ * @param {boolean} hasDubba    - whether the first wave of this move had 2+ groups
+ * @param {number[]} groupSizes  - array of tile counts per match group this wave
  */
-export function getHypeEvent(comboCount, chainDepth, totalCascadeWaves) {
-  // Avalanche: 4+ cascade waves in a single move (independent of combo)
-  if (totalCascadeWaves >= 4) {
-    return { type: 'AVALANCHE', text: 'AVALANCHE!', intensity: 3 };
-  }
+const HYPE_COPY = {
+  ANOTHER_ONE:   ['ANOTHER ONE!', 'DOUBLE DOOCER!', 'TWO FOR ONE!', 'DOUBLE DOWN!'],
+  TRIPLE:        ['Triple!', 'Hat Trick!', "Three's Company!"],
+  QUADRUPLE:     ['Quadruple!', 'FOUR ALARM!', 'ON A ROLL!'],
+  QUINTUPLE:     ['Quintuple!', 'UNSTOPPABLE!', 'BERRY BONANZA!'],
+  MEGA_MATCH:    ['MEGA MATCH!', 'MONSTER!', 'COLOSSAL!'],
+  JUICY:         ['Juicy!', 'BIG SQUEEZE!', 'THICK ONE!'],
+  HEATING:       ['Heating', 'Warming Up', 'Getting Spicy'],
+  ON_FIRE:       ['On Fire', "Smokin'", 'Hot Streak'],
+  BAZINGABERRY:  ['Bazingaberry!', 'Berry Good!', "Now We're Talking!"],
+  MEGA_BAZINGA:  ['Mega Bazingaberry!', 'UNREAL!', 'JUICE MODE!'],
+  BAZILLIONAIRE: ['BAZILLIONAIRE!', 'MONEY MOVES!', 'BERRY KING!'],
+};
 
-  // Combo-driven tiers
-  if (comboCount >= 5) {
-    return { type: 'MEGA_BAZINGA', text: 'MEGA BAZINGABERRY!', intensity: 4 };
-  }
-  if (comboCount >= 4) {
-    return { type: 'BERRY_BLAST', text: 'BERRY BLAST!', intensity: 3 };
-  }
-  if (comboCount >= 3) {
-    return { type: 'BAZINGA', text: 'BAZINGABERRY!', intensity: 2 };
-  }
-  if (comboCount >= 2) {
-    return { type: 'NICE', text: 'NICE!', intensity: 1 };
+function pick(type) {
+  const pool = HYPE_COPY[type];
+  return pool[Math.floor(Math.random() * pool.length)];
+}
+
+export function getHypeEvent(streakCombo, chainDepth, matchGroupCount, hasDubba, groupSizes) {
+  const isDubba = chainDepth === 0 && matchGroupCount >= 2;
+
+  // Effective chain level:
+  //   depth 0, single match → 1 (no chain event)
+  //   depth 0, DUBBA        → 2 (ANOTHER ONE!)
+  //   depth 1+              → depth + 1 + (hasDubba ? 1 : 0)
+  const effectiveChain = chainDepth === 0
+    ? (isDubba ? 2 : 1)
+    : chainDepth + 1 + (hasDubba ? 1 : 0);
+
+  // --- Cascade chain events (level 2+) ---
+  if (effectiveChain >= 5) return { type: 'QUINTUPLE',   text: pick('QUINTUPLE'),   intensity: 4 };
+  if (effectiveChain >= 4) return { type: 'QUADRUPLE',   text: pick('QUADRUPLE'),   intensity: 3 };
+  if (effectiveChain >= 3) return { type: 'TRIPLE',      text: pick('TRIPLE'),      intensity: 2 };
+  if (effectiveChain >= 2) return { type: 'ANOTHER_ONE', text: pick('ANOTHER_ONE'), intensity: 2 };
+
+  // --- Big match events (only at chain level 1 — no cascade chain active) ---
+  const maxGroupSize = groupSizes ? Math.max(...groupSizes) : 0;
+  if (maxGroupSize >= 5) return { type: 'MEGA_MATCH', text: pick('MEGA_MATCH'), intensity: 3 };
+  if (maxGroupSize >= 4) return { type: 'JUICY',      text: pick('JUICY'),      intensity: 1 };
+
+  // --- Move streak events (first wave, single match only) ---
+  if (chainDepth === 0 && matchGroupCount < 2) {
+    if (streakCombo >= 9) return { type: 'BAZILLIONAIRE', text: pick('BAZILLIONAIRE'), intensity: 5 };
+    if (streakCombo >= 6) return { type: 'MEGA_BAZINGA',  text: pick('MEGA_BAZINGA'),  intensity: 4 };
+    if (streakCombo >= 4) return { type: 'BAZINGABERRY',  text: pick('BAZINGABERRY'),  intensity: 3 };
+    if (streakCombo >= 3) return { type: 'ON_FIRE',       text: pick('ON_FIRE'),       intensity: 2 };
+    if (streakCombo >= 2) return { type: 'HEATING',       text: pick('HEATING'),       intensity: 1 };
   }
 
   return null;

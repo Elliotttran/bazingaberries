@@ -12,6 +12,7 @@ export default function HypeOverlay({ event }) {
       {intensity >= 2 && <div className="hype-overlay__burst" />}
       {intensity >= 3 && <div className="hype-overlay__shower" />}
       {intensity >= 4 && <div className="hype-overlay__wash" />}
+      {intensity >= 5 && <div className="hype-overlay__supernova" />}
       <span
         className={`hype-overlay__text hype-overlay__text--i${intensity}`}
         style={{

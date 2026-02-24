@@ -22,18 +22,26 @@ export const DROP_DURATION = 350;
 export const SWAP_DURATION = 200;
 export const SHAKE_DURATION = 300;
 export const HYPE_DISPLAY_DURATION = 1200;
-export const HYPE_THROTTLE = 800;
+export const HYPE_THROTTLE = 500; // lowered so cascade chain events fire in quick succession
 
 // Score milestones
 export const SCORE_MILESTONES = [500, 1000, 2000, 5000, 10000, 25000, 50000];
 
-// Hype tiers
-export const HYPE_TIERS = {
-  NICE: { text: 'NICE!', intensity: 1, minCombo: 2 },
-  BAZINGA: { text: 'BAZINGABERRY!', intensity: 2, minCombo: 3 },
-  BERRY_BLAST: { text: 'BERRY BLAST!', intensity: 3, minCombo: 4 },
-  MEGA_BAZINGA: { text: 'MEGA BAZINGABERRY!', intensity: 4, minCombo: 5 },
-  AVALANCHE: { text: 'AVALANCHE!', intensity: 3, minCascade: 4 },
+// Move streak tiers (consecutive successful swaps)
+export const STREAK_TIERS = {
+  HEATING:      { text: 'Heating',           intensity: 1, minStreak: 2 },
+  ON_FIRE:      { text: 'On Fire',            intensity: 2, minStreak: 3 },
+  BAZINGABERRY: { text: 'Bazingaberry!',      intensity: 3, minStreak: 4 },
+  MEGA_BAZINGA: { text: 'Mega Bazingaberry!', intensity: 4, minStreak: 6 },
+  BAZILLIONAIRE:{ text: 'BAZILLIONAIRE!',     intensity: 5, minStreak: 9 },
+};
+
+// Cascade chain tiers (Double Doocer + each cascade wave within one move)
+export const CHAIN_TIERS = {
+  ANOTHER_ONE: { text: 'ANOTHER ONE!', intensity: 2, minChain: 2 },
+  TRIPLE:      { text: 'Triple!',       intensity: 2, minChain: 3 },
+  QUADRUPLE:   { text: 'Quadruple!',    intensity: 3, minChain: 4 },
+  QUINTUPLE:   { text: 'Quintuple!',    intensity: 4, minChain: 5 },
 };
 
 // Debug

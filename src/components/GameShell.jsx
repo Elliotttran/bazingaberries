@@ -14,6 +14,7 @@ import Board from './Board.jsx';
 import HUD from './HUD.jsx';
 import HypeOverlay from './HypeOverlay.jsx';
 import FloatingScore from './FloatingScore.jsx';
+import BambooFrame from './BambooFrame.jsx';
 import GameOverOverlay from './GameOverOverlay.jsx';
 import './GameShell.css';
 
@@ -32,6 +33,7 @@ export default function GameShell() {
     setBoard, addScore, setResolving, setHypeEvent, addFloatingScore, comboCount,
   });
 
+  const boardRef = useRef(null);
   const audioUnlocked = useRef(false);
   const comboTimerRef = useRef(null);
   const comboActiveRef = useRef(false);
@@ -196,12 +198,14 @@ export default function GameShell() {
         />
         <div className="game-shell__board-area">
           <Board
+            ref={boardRef}
             board={board}
             selected={selected}
             swappingTiles={swappingTiles}
             onTileClick={handleTileClick}
           />
           <FloatingScore scores={floatingScores} />
+          <BambooFrame boardRef={boardRef} />
         </div>
       </div>
       <div className="game-shell__bottom" />
