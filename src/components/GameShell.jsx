@@ -206,6 +206,8 @@ export default function GameShell() {
           />
           <FloatingScore scores={floatingScores} />
           <BambooFrame boardRef={boardRef} />
+          <img src="/img/shrub-left.png"  className="deco-shrub deco-shrub--left"  alt="" draggable="false" aria-hidden="true" />
+          <img src="/img/shrub-right.png" className="deco-shrub deco-shrub--right" alt="" draggable="false" aria-hidden="true" />
         </div>
       </div>
       <div className="game-shell__bottom" />

@@ -14,11 +14,7 @@ html, body, #root {
 
 body {
   font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-  /* Tropical: warm amber sun at top, deep jungle-to-ocean below */
-  background:
-    radial-gradient(ellipse at 50% -8%, rgba(255,145,30,0.32) 0%, transparent 48%),
-    radial-gradient(ellipse at 88% 18%, rgba(30,200,170,0.10) 0%, transparent 38%),
-    linear-gradient(170deg, #1c3d28 0%, #0d2538 42%, #07101e 100%);
+  background: url('/img/background3.jpg') center / cover no-repeat fixed;
   color: #fff;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

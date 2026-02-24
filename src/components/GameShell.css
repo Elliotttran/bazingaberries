@@ -36,7 +36,22 @@
 .game-shell__board-area {
   position: relative;
   margin-top: 60px;
+  overflow: visible;
+  filter:
+    drop-shadow(0 28px 8px rgba(0, 0, 0, 0.30))
+    drop-shadow(0 8px 9px rgba(0, 0, 0, 0.55));
 }
+
+/* Decorative shrubs overlaying the bottom of the bamboo frame */
+.deco-shrub {
+  position: absolute;
+  pointer-events: none;
+  z-index: 101;
+  user-select: none;
+}
+
+.deco-shrub--left  { left: -22%; bottom: -13%; width: 47%; }
+.deco-shrub--right { right: -23%; bottom: -17%; width: 56%; }
 
 /* Board shake for hype events */
 .game-shell--shaking {

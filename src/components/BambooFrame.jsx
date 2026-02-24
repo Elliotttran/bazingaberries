@@ -9,8 +9,8 @@ import { useRef, useEffect, useCallback, useState } from 'react';
  */
 
 const SLICE = 210;       // px from each edge in the 1024×1024 source PNG (captures full corner joint)
-const RAIL_WIDTH = 42;   // rendered bamboo thickness (px)
-const OVERLAP = 6;       // how far inner lip overlaps board edges (px)
+const RAIL_WIDTH = 70;   // rendered bamboo thickness (px)
+const OVERLAP = 10;      // how far inner lip overlaps board edges (px)
 
 export default function BambooFrame({ boardRef }) {
   const sourceImgRef = useRef(null);

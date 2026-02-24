@@ -4,4 +4,6 @@
   height: min(90vw, 70vh, 640px);
   touch-action: manipulation;
   overflow: visible;
+  background: url('/img/bg-wood.jpg') center / cover no-repeat;
+  border-radius: 4px;
 }
