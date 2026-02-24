@@ -13,7 +13,7 @@ html, body, #root {
 }
 
 body {
-  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  font-family: 'Carter One', system-ui, sans-serif;
   background: url('/img/background3.jpg') center / cover no-repeat fixed;
   color: #fff;
   -webkit-font-smoothing: antialiased;
