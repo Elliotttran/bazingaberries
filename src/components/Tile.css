@@ -21,10 +21,19 @@
   visibility: hidden;
 }
 
-/* Idle */
-.tile--idle {
-  /* No transform here — transform: scale(1) creates a GPU layer per tile,
-     which breaks z-index stacking against the bamboo frame. */
+/* Idle — sporadic squish + wobble jiggle.
+   7s cycle, jiggle occupies ~7% ≈ 490ms active, ~6.5s still. */
+.tile--idle .tile__img {
+  animation: idle-jiggle var(--idle-dur, 7s) ease-in-out infinite;
+  animation-delay: var(--idle-delay, 0ms);
+}
+
+@keyframes idle-jiggle {
+  0%, 7%, 100% { transform: scaleX(1) scaleY(1) rotate(0deg); }
+  1%  { transform: scaleX(1.07) scaleY(0.93) rotate(-2deg); }
+  2.5%  { transform: scaleX(0.93) scaleY(1.07) rotate(2.5deg); }
+  4%  { transform: scaleX(1.04) scaleY(0.96) rotate(-1.5deg); }
+  5.5%  { transform: scaleX(0.98) scaleY(1.02) rotate(0.5deg); }
 }
 
 /* Selected pulse */

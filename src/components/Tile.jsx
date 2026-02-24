@@ -9,6 +9,8 @@ export default function Tile({ tile, isSelected, swapOffset, onClick }) {
   const style = {
     '--tile-color': tileToken.glowColor,
     '--drop-distance': tile.dropDistance || 0,
+    '--idle-delay': `${-((tile.key * 2654435761 >>> 0) % 7000)}ms`,
+    '--idle-dur': `${6500 + ((tile.key * 1597334677 >>> 0) % 2000)}ms`,
   };
 
   if (isSelected) {
