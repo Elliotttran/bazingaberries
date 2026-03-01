@@ -6,7 +6,7 @@ const assets = {
     pop: '/sounds/pop.mp3',
     bazinga: '/sounds/bazinga.mp3',
     gameover: '/sounds/gameover.mp3',
-    clar1: '/sounds/clar1.mp3',
+    collect: '/sounds/collect.mp3',
   },
 
   // Phase 2: tile type → image path for berry sprites
