@@ -49,14 +49,21 @@
   font-size: 1.5rem;
 }
 
+.gameover-overlay__actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
 .gameover-overlay__btn {
   background: linear-gradient(135deg, #fd79a8, #e84393);
   color: #fff;
   border: none;
   border-radius: 8px;
-  padding: 12px 32px;
+  padding: 12px 28px;
   font-size: 1.1rem;
   font-weight: 700;
+  font-family: 'Carter One', system-ui, sans-serif;
   cursor: pointer;
   transition: transform 0.15s ease, box-shadow 0.15s ease;
   box-shadow: 0 4px 16px rgba(232, 67, 147, 0.4);
@@ -69,4 +76,15 @@
 
 .gameover-overlay__btn:active {
   transform: scale(0.97);
+}
+
+.gameover-overlay__btn--secondary {
+  background: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+}
+
+.gameover-overlay__btn--secondary:hover {
+  background: rgba(255, 255, 255, 0.20);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
 }

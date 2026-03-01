@@ -18,10 +18,11 @@ import BambooFrame from './BambooFrame.jsx';
 import GameOverOverlay from './GameOverOverlay.jsx';
 import './GameShell.css';
 
-export default function GameShell() {
-  const state = useGameState();
+export default function GameShell({ mode, onHome }) {
+  const state = useGameState(mode);
   const {
     board, setBoard, score, addScore, movesLeft, decrementMoves,
+    timeLeft,
     selected, selectTile, clearSelection, gameOver,
     resolving, setResolving, swappingTiles, setSwappingTiles,
     comboCount, setComboCount, hypeEvent, setHypeEvent,
@@ -194,7 +195,9 @@ export default function GameShell() {
         <HUD
           score={score}
           movesLeft={movesLeft}
+          timeLeft={timeLeft}
           multiplier={currentMultiplier}
+          mode={mode}
         />
         <div className="game-shell__board-area">
           <Board
@@ -211,9 +214,11 @@ export default function GameShell() {
           <img src="/img/shrub-right.png" className="deco-shrub deco-shrub--right" alt="" draggable="false" aria-hidden="true" />
         </div>
       </div>
-      <div className="game-shell__bottom" />
+      <div className="game-shell__bottom">
+        <button className="game-shell__home-btn" onClick={onHome}>Menu</button>
+      </div>
       <HypeOverlay event={hypeEvent} />
-      <GameOverOverlay visible={gameOver} score={score} onRestart={handleRestart} />
+      <GameOverOverlay visible={gameOver} score={score} onRestart={handleRestart} onHome={onHome} />
     </div>
   );
 }

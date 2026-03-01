@@ -103,17 +103,17 @@ export function calculateWaveScore(matchGroups, chainDepth, comboCount) {
  * @param {number[]} groupSizes  - array of tile counts per match group this wave
  */
 const HYPE_COPY = {
-  ANOTHER_ONE:   ['ANOTHER ONE!', 'DOUBLE DOOCER!', 'TWO FOR ONE!', 'DOUBLE DOWN!'],
-  TRIPLE:        ['Triple!', 'Hat Trick!', "Three's Company!"],
-  QUADRUPLE:     ['Quadruple!', 'FOUR ALARM!', 'ON A ROLL!'],
-  QUINTUPLE:     ['Quintuple!', 'UNSTOPPABLE!', 'BERRY BONANZA!'],
+  ANOTHER_ONE:   ['ANOTHER ONE!', 'DOUBLE DOOCER!', 'TWO FOR ONE!', 'DOUBLE DOWN!', 'WOW!'],
+  TRIPLE:        ['Triple!', 'Hat Trick!', "Three's Company!", 'WOW!'],
+  QUADRUPLE:     ['Quadruple!', 'FOUR ALARM!', 'ON A ROLL!', 'WOW!'],
+  QUINTUPLE:     ['Quintuple!', 'UNSTOPPABLE!', 'BERRY BONANZA!', 'WOW!'],
   MEGA_MATCH:    ['MEGA MATCH!', 'MONSTER!', 'COLOSSAL!'],
-  JUICY:         ['Juicy!', 'BIG SQUEEZE!', 'THICK ONE!'],
-  HEATING:       ['Heating', 'Warming Up', 'Getting Spicy'],
+  JUICY:         ['Juicy!', 'BIG SQUEEZE!', 'THICK ONE!', 'JOOCI!'],
+  HEATING:       ['Heating', 'Warming Up', 'Getting Spicy', 'C-C-COMBO BREAKER'],
   ON_FIRE:       ['On Fire', "Smokin'", 'Hot Streak'],
   BAZINGABERRY:  ['Bazingaberry!', 'Berry Good!', "Now We're Talking!"],
-  MEGA_BAZINGA:  ['Mega Bazingaberry!', 'UNREAL!', 'JUICE MODE!'],
-  BAZILLIONAIRE: ['BAZILLIONAIRE!', 'MONEY MOVES!', 'BERRY KING!'],
+  MEGA_BAZINGA:  ['Mega Bazingaberry!', 'UNREAL!', 'BUSTING!', 'BERRY SPREE'],
+  BAZILLIONAIRE: ['BAZILLIONAIRE!', 'BERRY KING!', 'BUSTING IN HERE'],
 };
 
 function pick(type) {

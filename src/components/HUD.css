@@ -82,6 +82,18 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* Timer turns red and pulses when ≤ 30 seconds remain */
+.hud__timer--urgent {
+  color: #ff6b6b;
+  text-shadow: 0 0 10px rgba(255, 80, 80, 0.7), 0 2px 4px rgba(0, 0, 0, 0.6);
+  animation: timer-pulse 1s ease-in-out infinite;
+}
+
+@keyframes timer-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.6; }
+}
+
 @keyframes mult-pop {
   0% { transform: scale(0.5); opacity: 0; }
   50% { transform: scale(1.3); }

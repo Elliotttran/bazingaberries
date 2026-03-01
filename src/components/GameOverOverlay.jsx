@@ -1,6 +1,6 @@
 import './GameOverOverlay.css';
 
-export default function GameOverOverlay({ visible, score, onRestart }) {
+export default function GameOverOverlay({ visible, score, onRestart, onHome }) {
   if (!visible) return null;
 
   return (
@@ -10,9 +10,14 @@ export default function GameOverOverlay({ visible, score, onRestart }) {
         <p className="gameover-overlay__score">
           Final Score: <strong>{score}</strong>
         </p>
-        <button className="gameover-overlay__btn" onClick={onRestart}>
-          Play Again
-        </button>
+        <div className="gameover-overlay__actions">
+          <button className="gameover-overlay__btn" onClick={onRestart}>
+            Play Again
+          </button>
+          <button className="gameover-overlay__btn gameover-overlay__btn--secondary" onClick={onHome}>
+            Main Menu
+          </button>
+        </div>
       </div>
     </div>
   );

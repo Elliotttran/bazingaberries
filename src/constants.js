@@ -46,3 +46,35 @@ export const CHAIN_TIERS = {
 
 // Debug
 export const DEBUG = false;
+
+// Game modes
+export const GAME_MODES = [
+  {
+    id: 'standard',
+    label: 'Standard',
+    description: '30 moves, score as high as you can',
+    moves: 30,
+    timeLimit: null,
+  },
+  {
+    id: 'time-attack',
+    label: 'Time Attack',
+    description: '2 minutes on the clock, unlimited moves',
+    moves: null,
+    timeLimit: 120,
+  },
+  {
+    id: 'blitz',
+    label: 'Blitz',
+    description: '15 moves, fast & dirty',
+    moves: 15,
+    timeLimit: null,
+  },
+  {
+    id: 'endless',
+    label: 'Endless',
+    description: 'No limits, just vibes',
+    moves: null,
+    timeLimit: null,
+  },
+];

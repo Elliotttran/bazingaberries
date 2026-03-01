@@ -29,9 +29,31 @@
   gap: 0;
 }
 
-/* Bottom: matches top to keep game centered */
+/* Bottom: matches top to keep game centered, holds the menu button */
 .game-shell__bottom {
   flex: 1;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.game-shell__home-btn {
+  margin-top: 14px;
+  background: rgba(20, 10, 2, 0.50);
+  border: 1.5px solid rgba(160, 110, 40, 0.45);
+  border-radius: 20px;
+  color: rgba(255, 220, 140, 0.55);
+  font-family: 'Carter One', system-ui, sans-serif;
+  font-size: 0.78rem;
+  letter-spacing: 0.5px;
+  padding: 6px 20px;
+  cursor: pointer;
+  transition: color 150ms ease, border-color 150ms ease;
+}
+
+.game-shell__home-btn:hover {
+  color: rgba(255, 220, 140, 0.9);
+  border-color: rgba(160, 110, 40, 0.75);
 }
 
 .game-shell__board-area {
@@ -39,9 +61,9 @@
   margin-top: -80px;
   z-index: 20;
   overflow: visible;
-  filter:
+  /* filter:
     drop-shadow(0 28px 8px rgba(0, 0, 0, 0.30))
-    drop-shadow(0 8px 9px rgba(0, 0, 0, 0.55));
+    drop-shadow(0 8px 9px rgba(0, 0, 0, 0.55)); */
 }
 
 /* Decorative shrubs overlaying the bottom of the bamboo frame */

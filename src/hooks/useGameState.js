@@ -1,11 +1,14 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { TOTAL_MOVES } from '../constants.js';
 import { createInitialBoard } from '../game/board.js';
 
-export default function useGameState() {
+const DEFAULT_MODE = { id: 'standard', moves: TOTAL_MOVES, timeLimit: null };
+
+export default function useGameState(mode = DEFAULT_MODE) {
   const [board, setBoard] = useState(() => createInitialBoard());
   const [score, setScore] = useState(0);
-  const [movesLeft, setMovesLeft] = useState(TOTAL_MOVES);
+  const [movesLeft, setMovesLeft] = useState(mode.moves ?? null);
+  const [timeLeft, setTimeLeft] = useState(mode.timeLimit ?? null);
   const [selected, setSelected] = useState(null);
   const [gameOver, setGameOver] = useState(false);
   const [resolving, setResolving] = useState(false);
@@ -23,6 +26,26 @@ export default function useGameState() {
   // Last reached milestone index
   const [lastMilestone, setLastMilestone] = useState(-1);
 
+  const timerRef = useRef(null);
+
+  // Countdown timer for time attack mode
+  useEffect(() => {
+    if (!mode.timeLimit || gameOver) return;
+
+    timerRef.current = setInterval(() => {
+      setTimeLeft(prev => {
+        const next = prev - 1;
+        if (next <= 0) {
+          setGameOver(true);
+          return 0;
+        }
+        return next;
+      });
+    }, 1000);
+
+    return () => clearInterval(timerRef.current);
+  }, [mode.timeLimit, gameOver]);
+
   const selectTile = useCallback((row, col) => {
     setSelected(prev => {
       if (prev && prev.row === row && prev.col === col) return null;
@@ -39,6 +62,7 @@ export default function useGameState() {
   }, []);
 
   const decrementMoves = useCallback(() => {
+    if (mode.moves === null) return; // no move limit for this mode
     setMovesLeft(prev => {
       const next = prev - 1;
       if (next <= 0) {
@@ -46,7 +70,7 @@ export default function useGameState() {
       }
       return next;
     });
-  }, []);
+  }, [mode.moves]);
 
   const addFloatingScore = useCallback((points, multiplier) => {
     const id = Date.now() + Math.random();
@@ -57,9 +81,11 @@ export default function useGameState() {
   }, []);
 
   const resetGame = useCallback(() => {
+    clearInterval(timerRef.current);
     setBoard(createInitialBoard());
     setScore(0);
-    setMovesLeft(TOTAL_MOVES);
+    setMovesLeft(mode.moves ?? null);
+    setTimeLeft(mode.timeLimit ?? null);
     setSelected(null);
     setGameOver(false);
     setResolving(false);
@@ -68,12 +94,13 @@ export default function useGameState() {
     setHypeEvent(null);
     setFloatingScores([]);
     setLastMilestone(-1);
-  }, []);
+  }, [mode.moves, mode.timeLimit]);
 
   return {
     board, setBoard,
     score, addScore,
     movesLeft, decrementMoves,
+    timeLeft,
     selected, selectTile, clearSelection,
     gameOver,
     resolving, setResolving,
