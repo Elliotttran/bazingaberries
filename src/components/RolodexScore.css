@@ -1,5 +1,6 @@
 .rolodex {
   display: flex;
+  justify-content: center;
   gap: 1px;
   font-weight: 800;
   font-size: 1.9rem;
@@ -10,10 +11,6 @@
   overflow: hidden;
   height: 1.6em;
   width: 0.75em;
-}
-
-.rolodex__window--dim {
-  opacity: 0.2;
 }
 
 .rolodex__strip {

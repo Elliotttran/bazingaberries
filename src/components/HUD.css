@@ -9,7 +9,34 @@
   z-index: 10;
 }
 
-/* ── Inset panel (shared between score & moves) ── */
+/* ── Shared block (label + inset) ── */
+.hud__block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.hud__block--score {
+  flex: 0 1 52%;
+}
+
+.hud__block--combo,
+.hud__block--moves {
+  flex: 0 0 auto;
+}
+
+.hud__label {
+  font-size: 1.4rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: #fff;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  white-space: nowrap;
+}
+
+/* ── Inset panel (shared across all blocks) ── */
 .hud__inset {
   background: rgba(20, 8, 2, 0.55);
   border-radius: 10px;
@@ -18,64 +45,31 @@
     inset 0 4px 10px rgba(0, 0, 0, 0.6),
     inset 0 1px 2px rgba(0, 0, 0, 0.4),
     0 1px 0 rgba(255, 220, 140, 0.12);
-  padding: 6px 18px;
+  padding: 6px 24px;
+  height: 48px;
   display: flex;
   align-items: center;
   justify-content: center;
+  box-sizing: border-box;
 }
 
-/* ── Score section (left) ── */
-.hud__score-block {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  flex: 1;
+.hud__inset--score {
+  width: 100%;
 }
 
-.hud__label {
-  font-size: 1.9rem;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 1.5px;
-  color: #fff;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+.hud__inset--combo {
+  padding: 4px 10px;
+  min-width: 56px;
 }
 
-.hud__score-inset {
-  min-width: 120px;
-}
-
-.hud__score-value {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.hud__multiplier {
-  font-size: 0.85rem;
-  font-weight: 800;
-  color: #fd79a8;
-  text-shadow: 0 0 12px rgba(253, 121, 168, 0.6);
-  animation: mult-pop 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-/* ── Moves section (right) ── */
-.hud__moves-block {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  flex: 0.7;
-}
-
-.hud__moves-inset {
-  min-width: 90px;
+.hud__inset--moves {
   padding: 6px 18px;
+  min-width: 76px;
 }
 
-.hud__moves-number {
-  font-size: 1.9rem;
+/* ── Number display (moves / time) ── */
+.hud__number {
+  font-size: 1.6rem;
   font-weight: 800;
   color: #fff;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
@@ -83,7 +77,7 @@
 }
 
 /* Timer turns red and pulses when ≤ 30 seconds remain */
-.hud__timer--urgent {
+.hud__number--urgent {
   color: #ff6b6b;
   text-shadow: 0 0 10px rgba(255, 80, 80, 0.7), 0 2px 4px rgba(0, 0, 0, 0.6);
   animation: timer-pulse 1s ease-in-out infinite;
@@ -92,10 +86,4 @@
 @keyframes timer-pulse {
   0%, 100% { opacity: 1; }
   50%       { opacity: 0.6; }
-}
-
-@keyframes mult-pop {
-  0% { transform: scale(0.5); opacity: 0; }
-  50% { transform: scale(1.3); }
-  100% { transform: scale(1); opacity: 1; }
 }

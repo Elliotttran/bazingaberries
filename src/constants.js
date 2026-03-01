@@ -2,16 +2,16 @@ export const BOARD_SIZE = 8;
 export const TILE_COUNT = 7;
 export const TOTAL_MOVES = 30;
 
-// Scoring
-export const SCORE_PER_TILE = 10;
-export const BONUS_4_MATCH = 20;
-export const BONUS_5_PLUS_MATCH = 50;
-export const CASCADE_BONUS_PER_DEPTH = 25;
+// Scoring — base values pumped up for satisfying big numbers
+export const SCORE_PER_TILE = 50;
+export const BONUS_4_MATCH = 100;
+export const BONUS_5_PLUS_MATCH = 250;
+export const CASCADE_BONUS_PER_DEPTH = 75;
 
-// Multiplier thresholds
-export const CASCADE_MULTIPLIERS = [1, 1.5, 2, 3, 4]; // wave 1-5+
-export const COMBO_MULTIPLIERS = { 2: 1.5, 3: 2, 4: 3, 5: 5 }; // combo count → mult
-export const MULTI_MATCH_MULTIPLIER = 1.5; // 2+ match groups in one wave
+// Multiplier thresholds — escalate hard for dopamine
+export const CASCADE_MULTIPLIERS = [1, 2, 3, 5, 8]; // wave 1-5+
+export const COMBO_MULTIPLIERS = { 2: 2, 3: 3.5, 4: 6, 5: 10 }; // combo count → mult
+export const MULTI_MATCH_MULTIPLIER = 2; // 2+ match groups in one wave
 
 // Combo
 export const COMBO_WINDOW = 3000; // 3 seconds to land next match
@@ -21,11 +21,11 @@ export const POP_DURATION = 280;
 export const DROP_DURATION = 350;
 export const SWAP_DURATION = 200;
 export const SHAKE_DURATION = 300;
-export const HYPE_DISPLAY_DURATION = 1200;
-export const HYPE_THROTTLE = 500; // lowered so cascade chain events fire in quick succession
+export const HYPE_DISPLAY_DURATION = 1400;
+export const HYPE_THROTTLE = 1000; // 1s gap between hype events
 
 // Score milestones
-export const SCORE_MILESTONES = [500, 1000, 2000, 5000, 10000, 25000, 50000];
+export const SCORE_MILESTONES = [2500, 5000, 10000, 25000, 50000, 100000, 250000];
 
 // Move streak tiers (consecutive successful swaps)
 export const STREAK_TIERS = {

@@ -4,7 +4,7 @@ import tokens from '../theme/tokens.js';
 import Tile from './Tile.jsx';
 import './Board.css';
 
-const Board = forwardRef(function Board({ board, selected, swappingTiles, onTileClick }, ref) {
+const Board = forwardRef(function Board({ board, selected, swappingTiles, hintTiles, onTileClick }, ref) {
   const boardStyle = {
     padding: tokens.board.padding,
     gap: tokens.board.gap,
@@ -29,11 +29,14 @@ const Board = forwardRef(function Board({ board, selected, swappingTiles, onTile
             }
           }
 
+          const isHinted = hintTiles ? hintTiles.has(`${r},${c}`) : false;
+
           return (
             <Tile
               key={tile ? tile.key : `empty-${r}-${c}`}
               tile={tile}
               isSelected={isSelected}
+              isHinted={isHinted}
               swapOffset={swapOffset}
               onClick={() => onTileClick(r, c)}
             />

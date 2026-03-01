@@ -87,6 +87,32 @@ export function hasAnyValidMoves(board) {
 }
 
 /**
+ * Find the first valid swap that produces a match, for hint highlighting.
+ * Returns { from: {row, col}, to: {row, col} } or null.
+ */
+export function findHint(board) {
+  for (let r = 0; r < BOARD_SIZE; r++) {
+    for (let c = 0; c < BOARD_SIZE; c++) {
+      if (c + 1 < BOARD_SIZE) {
+        const test = cloneBoard(board);
+        const tmp = test[r][c];
+        test[r][c] = test[r][c + 1];
+        test[r][c + 1] = tmp;
+        if (hasAnyMatches(test)) return { from: { row: r, col: c }, to: { row: r, col: c + 1 } };
+      }
+      if (r + 1 < BOARD_SIZE) {
+        const test = cloneBoard(board);
+        const tmp = test[r][c];
+        test[r][c] = test[r + 1][c];
+        test[r + 1][c] = tmp;
+        if (hasAnyMatches(test)) return { from: { row: r, col: c }, to: { row: r + 1, col: c } };
+      }
+    }
+  }
+  return null;
+}
+
+/**
  * Reshuffle the board while keeping the same tile types, ensuring no matches
  * and at least one valid move.
  */

@@ -1,10 +1,14 @@
 .combo-meter {
   position: relative;
-  width: 48px;
-  height: 48px;
+  width: 36px;
+  height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.combo-meter--empty {
+  opacity: 0.25;
 }
 
 .combo-meter__ring {
@@ -19,7 +23,7 @@
 }
 
 .combo-meter__count {
-  font-size: 0.9rem;
+  font-size: 1.1rem;
   font-weight: 800;
   color: #ffeaa7;
   text-shadow: 0 1px 4px rgba(0,0,0,0.5);

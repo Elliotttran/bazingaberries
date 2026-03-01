@@ -1,15 +1,13 @@
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef, useCallback, useState } from 'react';
 import {
-  SWAP_DURATION, SHAKE_DURATION, COMBO_WINDOW, SCORE_MILESTONES,
-  HYPE_DISPLAY_DURATION, DEBUG,
+  SWAP_DURATION, SHAKE_DURATION, COMBO_WINDOW, SCORE_MILESTONES, DEBUG,
 } from '../constants.js';
 import useGameState from '../hooks/useGameState.js';
 import useGameLoop from '../hooks/useGameLoop.js';
 import { attemptSwap } from '../game/swap.js';
 import { cloneBoard } from '../game/helpers.js';
-import { getComboMultiplier } from '../game/scoring.js';
+import { findHint } from '../game/board.js';
 import SoundManager from '../sound/SoundManager.js';
-import AppHeader from './AppHeader.jsx';
 import Board from './Board.jsx';
 import HUD from './HUD.jsx';
 import HypeOverlay from './HypeOverlay.jsx';
@@ -30,7 +28,7 @@ export default function GameShell({ mode, onHome }) {
     resetGame,
   } = state;
 
-  const { resolveBoard } = useGameLoop({
+  const { resolveBoard, fireHypeEvent } = useGameLoop({
     setBoard, addScore, setResolving, setHypeEvent, addFloatingScore, comboCount,
   });
 
@@ -38,7 +36,10 @@ export default function GameShell({ mode, onHome }) {
   const audioUnlocked = useRef(false);
   const comboTimerRef = useRef(null);
   const comboActiveRef = useRef(false);
-  const milestoneTimeoutRef = useRef(null);
+  const hintTimerRef = useRef(null);
+
+  const [hintTiles, setHintTiles] = useState(null);
+  const [muted, setMuted] = useState(false);
 
   useEffect(() => {
     SoundManager.preload();
@@ -53,16 +54,11 @@ export default function GameShell({ mode, onHome }) {
         const text = milestoneValue >= 1000
           ? `${milestoneValue / 1000}K!`
           : `${milestoneValue}!`;
-        setHypeEvent({ type: 'MILESTONE', text, intensity: 1 });
-        if (milestoneTimeoutRef.current) clearTimeout(milestoneTimeoutRef.current);
-        milestoneTimeoutRef.current = setTimeout(() => {
-          setHypeEvent(null);
-          milestoneTimeoutRef.current = null;
-        }, HYPE_DISPLAY_DURATION);
+        fireHypeEvent({ type: 'MILESTONE', text, intensity: 1 });
         break;
       }
     }
-  }, [score, lastMilestone, setLastMilestone, setHypeEvent]);
+  }, [score, lastMilestone, setLastMilestone, fireHypeEvent]);
 
   const unlockAudio = useCallback(() => {
     if (!audioUnlocked.current) {
@@ -87,8 +83,33 @@ export default function GameShell({ mode, onHome }) {
     setComboCount(0);
   }, [setComboCount]);
 
+  const toggleMute = useCallback(() => {
+    const next = !muted;
+    setMuted(next);
+    SoundManager.setMuted(next);
+  }, [muted]);
+
+  const clearHint = useCallback(() => {
+    if (hintTimerRef.current) clearTimeout(hintTimerRef.current);
+    setHintTiles(null);
+  }, []);
+
+  const handleHint = useCallback(() => {
+    if (resolving || gameOver) return;
+    const hint = findHint(board);
+    if (!hint) return;
+    clearHint();
+    const tiles = new Set([
+      `${hint.from.row},${hint.from.col}`,
+      `${hint.to.row},${hint.to.col}`,
+    ]);
+    setHintTiles(tiles);
+    hintTimerRef.current = setTimeout(() => setHintTiles(null), 3000);
+  }, [board, resolving, gameOver, clearHint]);
+
   const handleTileClick = useCallback((row, col) => {
     unlockAudio();
+    clearHint();
 
     if (gameOver || resolving || swappingTiles) return;
     if (!board[row][col]) return;
@@ -135,10 +156,7 @@ export default function GameShell({ mode, onHome }) {
         setBoard(result.board);
         setTimeout(() => {
           resolveBoard(result.board, newCombo, (finalCombo) => {
-            // Persist cascade-earned combo to state
             setComboCount(finalCombo);
-            // Start combo timer AFTER resolution completes,
-            // so the player gets the full window from board-stable
             startComboTimer();
           });
         }, 50);
@@ -163,40 +181,36 @@ export default function GameShell({ mode, onHome }) {
   }, [
     board, selected, gameOver, resolving, swappingTiles, comboCount,
     selectTile, clearSelection, decrementMoves, setBoard, setSwappingTiles,
-    setComboCount, startComboTimer, resetCombo, resolveBoard, unlockAudio,
+    setComboCount, startComboTimer, resetCombo, resolveBoard, unlockAudio, clearHint,
   ]);
 
   const handleRestart = useCallback(() => {
     unlockAudio();
     resetGame();
+    clearHint();
     if (comboTimerRef.current) clearTimeout(comboTimerRef.current);
-  }, [resetGame, unlockAudio]);
+  }, [resetGame, unlockAudio, clearHint]);
 
   useEffect(() => {
     if (gameOver) {
       SoundManager.play('gameover');
       resetCombo();
+      clearHint();
     }
-  }, [gameOver, resetCombo]);
+  }, [gameOver, resetCombo, clearHint]);
 
-  const currentMultiplier = getComboMultiplier(comboCount);
   const isShaking = hypeEvent && hypeEvent.intensity >= 2;
 
   return (
     <div className={`game-shell ${isShaking ? 'game-shell--shaking' : ''}`}>
-      <AppHeader
-        comboCount={comboCount}
-        comboActive={comboActiveRef.current && comboCount > 0}
-      />
-      <div className="game-shell__top">
-        <img className="game-shell__logo" src="/img/Logo.png" alt="Bazinga Berries" />
-      </div>
+      <div className="game-shell__top" />
       <div className="game-shell__game">
         <HUD
           score={score}
           movesLeft={movesLeft}
           timeLeft={timeLeft}
-          multiplier={currentMultiplier}
+          comboCount={comboCount}
+          comboActive={comboActiveRef.current && comboCount > 0}
           mode={mode}
         />
         <div className="game-shell__board-area">
@@ -205,6 +219,7 @@ export default function GameShell({ mode, onHome }) {
             board={board}
             selected={selected}
             swappingTiles={swappingTiles}
+            hintTiles={hintTiles}
             onTileClick={handleTileClick}
           />
           <FloatingScore scores={floatingScores} />
@@ -212,10 +227,47 @@ export default function GameShell({ mode, onHome }) {
           <img src="/img/drink.png"      className="deco-shrub deco-drink"        alt="" draggable="false" aria-hidden="true" />
           <img src="/img/shrub-left.png"  className="deco-shrub deco-shrub--left"  alt="" draggable="false" aria-hidden="true" />
           <img src="/img/shrub-right.png" className="deco-shrub deco-shrub--right" alt="" draggable="false" aria-hidden="true" />
+          <img src="/img/Logo.png" className="deco-shrub deco-logo" alt="Bazinga Berries" draggable="false" />
         </div>
       </div>
-      <div className="game-shell__bottom">
-        <button className="game-shell__home-btn" onClick={onHome}>Menu</button>
+      <div className="game-shell__bottom" />
+      <div className="game-actions">
+        <button className="game-action-btn" onClick={onHome} aria-label="Menu">
+          <svg width="18" height="14" viewBox="0 0 18 14" fill="none">
+            <rect y="0"    width="18" height="2.5" rx="1.25" fill="currentColor"/>
+            <rect y="5.75" width="18" height="2.5" rx="1.25" fill="currentColor"/>
+            <rect y="11.5" width="18" height="2.5" rx="1.25" fill="currentColor"/>
+          </svg>
+        </button>
+        <button
+          className={`game-action-btn${hintTiles ? ' game-action-btn--active' : ''}`}
+          onClick={handleHint}
+          aria-label="Hint"
+        >
+          <svg width="16" height="20" viewBox="0 0 16 20" fill="none">
+            <path d="M8 0C4.13 0 1 3.13 1 7c0 2.38 1.19 4.47 3 5.74V15a1 1 0 001 1h6a1 1 0 001-1v-2.26C13.81 11.47 15 9.38 15 7c0-3.87-3.13-7-7-7z" fill="currentColor" opacity="0.9"/>
+            <rect x="5" y="17" width="6" height="1.5" rx="0.75" fill="currentColor" opacity="0.7"/>
+            <rect x="5.5" y="15" width="5" height="1"   rx="0.5"  fill="currentColor" opacity="0.5"/>
+          </svg>
+        </button>
+        <button
+          className={`game-action-btn${muted ? ' game-action-btn--muted' : ''}`}
+          onClick={toggleMute}
+          aria-label="Toggle sound"
+        >
+          {muted
+            ? <svg width="18" height="16" viewBox="0 0 18 16" fill="none">
+                <path d="M2 5H5L9 1v14l-4-4H2a1 1 0 01-1-1V6a1 1 0 011-1z" fill="currentColor" opacity="0.9"/>
+                <line x1="12" y1="4" x2="17" y2="12" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                <line x1="17" y1="4" x2="12" y2="12" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+              </svg>
+            : <svg width="18" height="16" viewBox="0 0 18 16" fill="none">
+                <path d="M2 5H5L9 1v14l-4-4H2a1 1 0 01-1-1V6a1 1 0 011-1z" fill="currentColor" opacity="0.9"/>
+                <path d="M12 4c1.5 1 2.5 2.8 2.5 4s-1 3-2.5 4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" fill="none"/>
+                <path d="M14.5 1.5c2.5 1.8 4 4.3 4 6.5s-1.5 4.7-4 6.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" fill="none" opacity="0.6"/>
+              </svg>
+          }
+        </button>
       </div>
       <HypeOverlay event={hypeEvent} />
       <GameOverOverlay visible={gameOver} score={score} onRestart={handleRestart} onHome={onHome} />

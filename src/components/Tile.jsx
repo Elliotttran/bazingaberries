@@ -1,7 +1,7 @@
 import tokens from '../theme/tokens.js';
 import './Tile.css';
 
-export default function Tile({ tile, isSelected, swapOffset, onClick }) {
+export default function Tile({ tile, isSelected, isHinted, swapOffset, onClick }) {
   if (!tile) return <div className="tile tile--empty" />;
 
   const tileToken = tokens.tiles[tile.id];
@@ -27,6 +27,7 @@ export default function Tile({ tile, isSelected, swapOffset, onClick }) {
     `tile--${tile.state}`,
     isSelected ? 'tile--selected' : '',
     swapOffset ? 'tile--swapping' : '',
+    isHinted ? 'tile--hinted' : '',
   ].filter(Boolean).join(' ');
 
   return (

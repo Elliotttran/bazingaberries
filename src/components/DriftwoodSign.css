@@ -17,9 +17,10 @@
   position: relative;
   z-index: 1;
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: space-between;
+  gap: 12px;
   height: 340px;
-  padding: 60px 72px 84px;
+  padding: 60px 96px 142px 120px;
   box-sizing: border-box;
 }

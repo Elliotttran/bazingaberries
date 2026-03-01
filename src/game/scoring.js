@@ -77,80 +77,67 @@ export function calculateWaveScore(matchGroups, chainDepth, comboCount) {
 
 /**
  * Determine the hype event for this wave, if any.
+ * Images are selected in HypeOverlay from the asset registry — text is alt-only.
  *
- * Two independent systems:
+ * Three independent systems compete; highest intensity wins:
  *
- * CASCADE CHAIN — fires on every wave. DUBBA (2+ simultaneous match groups
- * at chainDepth 0) counts as chain level 2. Each subsequent cascade wave
- * advances the chain by 1. If a DUBBA occurred earlier in this move,
- * all subsequent depths get +1.
- *   chain 2 → ANOTHER ONE!  chain 3 → Triple!
- *   chain 4 → Quadruple!    chain 5+ → Quintuple!
+ * CASCADE CHAIN — DUBBA (2+ groups at wave 0) = chain 2, each cascade +1.
+ *   chain 2 → ANOTHER_ONE (i2)   chain 3 → TRIPLE (i2)
+ *   chain 4 → BAZINGABERRY (i3)  chain 5+ → MEGA_BAZINGA (i4)
  *
- * MOVE STREAK — fires only on the first wave (chainDepth 0) with a single
- * match group (no DUBBA). Driven by streakCombo (consecutive swap count).
- *   2 → Heating  3 → On Fire  4-5 → Bazingaberry!
- *   6-8 → Mega Bazingaberry!  9+ → BAZILLIONAIRE!
+ * BIG MATCH — single group of 4+ tiles (only when no cascade chain).
+ *   4-tile → JUICY (i1)   5+ tile → MEGA_MATCH (i3)
  *
- * BIG MATCH — fires when any single group in the wave has 4 or 5+ tiles.
- * Takes priority over streak but not over cascade chain.
- *   4-tile → 'Juicy!' (TODO: rename)  5+ tile → 'MEGA MATCH!' (TODO: rename)
- *
- * @param {number} streakCombo   - move streak count (stays constant per move)
- * @param {number} chainDepth    - 0-indexed wave depth within this move's resolution
- * @param {number} matchGroupCount - how many separate match groups fired this wave
- * @param {boolean} hasDubba    - whether the first wave of this move had 2+ groups
- * @param {number[]} groupSizes  - array of tile counts per match group this wave
+ * MOVE STREAK — wave 0 only, driven by consecutive swap count.
+ *   2 → HEATING (i1)   3 → ON_FIRE (i2)   4-5 → BAZINGABERRY (i3)
+ *   6-8 → MEGA_BAZINGA (i4)   9+ → BAZILLIONAIRE (i5)
  */
-const HYPE_COPY = {
-  ANOTHER_ONE:   ['ANOTHER ONE!', 'DOUBLE DOOCER!', 'TWO FOR ONE!', 'DOUBLE DOWN!', 'WOW!'],
-  TRIPLE:        ['Triple!', 'Hat Trick!', "Three's Company!", 'WOW!'],
-  QUADRUPLE:     ['Quadruple!', 'FOUR ALARM!', 'ON A ROLL!', 'WOW!'],
-  QUINTUPLE:     ['Quintuple!', 'UNSTOPPABLE!', 'BERRY BONANZA!', 'WOW!'],
-  MEGA_MATCH:    ['MEGA MATCH!', 'MONSTER!', 'COLOSSAL!'],
-  JUICY:         ['Juicy!', 'BIG SQUEEZE!', 'THICK ONE!', 'JOOCI!'],
-  HEATING:       ['Heating', 'Warming Up', 'Getting Spicy', 'C-C-COMBO BREAKER'],
-  ON_FIRE:       ['On Fire', "Smokin'", 'Hot Streak'],
-  BAZINGABERRY:  ['Bazingaberry!', 'Berry Good!', "Now We're Talking!"],
-  MEGA_BAZINGA:  ['Mega Bazingaberry!', 'UNREAL!', 'BUSTING!', 'BERRY SPREE'],
-  BAZILLIONAIRE: ['BAZILLIONAIRE!', 'BERRY KING!', 'BUSTING IN HERE'],
+const HYPE_ALT = {
+  ANOTHER_ONE:   'Double!',
+  TRIPLE:        'Triple!',
+  MEGA_MATCH:    'Mega Match!',
+  JUICY:         'Juicy!',
+  HEATING:       'Heating Up!',
+  ON_FIRE:       'On Fire!',
+  BAZINGABERRY:  'Bazingaberry!',
+  MEGA_BAZINGA:  'Mega Bazingaberry!',
+  BAZILLIONAIRE: 'Bazillionaire!',
 };
-
-function pick(type) {
-  const pool = HYPE_COPY[type];
-  return pool[Math.floor(Math.random() * pool.length)];
-}
 
 export function getHypeEvent(streakCombo, chainDepth, matchGroupCount, hasDubba, groupSizes) {
   const isDubba = chainDepth === 0 && matchGroupCount >= 2;
-
-  // Effective chain level:
-  //   depth 0, single match → 1 (no chain event)
-  //   depth 0, DUBBA        → 2 (ANOTHER ONE!)
-  //   depth 1+              → depth + 1 + (hasDubba ? 1 : 0)
   const effectiveChain = chainDepth === 0
     ? (isDubba ? 2 : 1)
     : chainDepth + 1 + (hasDubba ? 1 : 0);
 
-  // --- Cascade chain events (level 2+) ---
-  if (effectiveChain >= 5) return { type: 'QUINTUPLE',   text: pick('QUINTUPLE'),   intensity: 4 };
-  if (effectiveChain >= 4) return { type: 'QUADRUPLE',   text: pick('QUADRUPLE'),   intensity: 3 };
-  if (effectiveChain >= 3) return { type: 'TRIPLE',      text: pick('TRIPLE'),      intensity: 2 };
-  if (effectiveChain >= 2) return { type: 'ANOTHER_ONE', text: pick('ANOTHER_ONE'), intensity: 2 };
-
-  // --- Big match events (only at chain level 1 — no cascade chain active) ---
-  const maxGroupSize = groupSizes ? Math.max(...groupSizes) : 0;
-  if (maxGroupSize >= 5) return { type: 'MEGA_MATCH', text: pick('MEGA_MATCH'), intensity: 3 };
-  if (maxGroupSize >= 4) return { type: 'JUICY',      text: pick('JUICY'),      intensity: 1 };
-
-  // --- Move streak events (first wave, single match only) ---
-  if (chainDepth === 0 && matchGroupCount < 2) {
-    if (streakCombo >= 9) return { type: 'BAZILLIONAIRE', text: pick('BAZILLIONAIRE'), intensity: 5 };
-    if (streakCombo >= 6) return { type: 'MEGA_BAZINGA',  text: pick('MEGA_BAZINGA'),  intensity: 4 };
-    if (streakCombo >= 4) return { type: 'BAZINGABERRY',  text: pick('BAZINGABERRY'),  intensity: 3 };
-    if (streakCombo >= 3) return { type: 'ON_FIRE',       text: pick('ON_FIRE'),       intensity: 2 };
-    if (streakCombo >= 2) return { type: 'HEATING',       text: pick('HEATING'),       intensity: 1 };
+  let best = null;
+  function keep(type, intensity) {
+    if (!best || intensity > best.intensity) {
+      best = { type, text: HYPE_ALT[type], intensity };
+    }
   }
 
-  return null;
+  // Cascade chain events (mutually exclusive by level)
+  if (effectiveChain >= 5)      keep('MEGA_BAZINGA', 4);
+  else if (effectiveChain >= 4) keep('BAZINGABERRY', 3);
+  else if (effectiveChain >= 3) keep('TRIPLE',       2);
+  else if (effectiveChain >= 2) keep('ANOTHER_ONE',  2);
+
+  // Big match (only when no cascade chain active)
+  const maxGroupSize = groupSizes ? Math.max(...groupSizes) : 0;
+  if (effectiveChain < 2) {
+    if (maxGroupSize >= 5)      keep('MEGA_MATCH', 3);
+    else if (maxGroupSize >= 4) keep('JUICY',      1);
+  }
+
+  // Move streak (wave 0 only — competes with cascade/big match on intensity)
+  if (chainDepth === 0) {
+    if (streakCombo >= 9)      keep('BAZILLIONAIRE', 5);
+    else if (streakCombo >= 6) keep('MEGA_BAZINGA',  4);
+    else if (streakCombo >= 4) keep('BAZINGABERRY',  3);
+    else if (streakCombo >= 3) keep('ON_FIRE',       2);
+    else if (streakCombo >= 2) keep('HEATING',       1);
+  }
+
+  return best;
 }

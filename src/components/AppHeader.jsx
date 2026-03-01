@@ -1,9 +1,8 @@
 import SoundManager from '../sound/SoundManager.js';
 import { useState } from 'react';
-import ComboMeter from './ComboMeter.jsx';
 import './AppHeader.css';
 
-export default function AppHeader({ comboCount, comboActive }) {
+export default function AppHeader() {
   const [muted, setMuted] = useState(false);
 
   const toggleMute = () => {
@@ -14,7 +13,6 @@ export default function AppHeader({ comboCount, comboActive }) {
 
   return (
     <header className="app-header">
-      <ComboMeter comboCount={comboCount} active={comboActive} />
       <button className="app-header__mute" onClick={toggleMute} aria-label="Toggle sound">
         {muted ? '🔇' : '🔊'}
       </button>

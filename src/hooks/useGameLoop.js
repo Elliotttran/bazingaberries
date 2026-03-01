@@ -1,25 +1,44 @@
 import { useCallback, useRef } from 'react';
-import { DEBUG, POP_DURATION, DROP_DURATION, HYPE_DISPLAY_DURATION, HYPE_THROTTLE } from '../constants.js';
+import { DEBUG, POP_DURATION, DROP_DURATION } from '../constants.js';
 import { findMatchGroups } from '../game/matching.js';
 import { markPopping, clearPopping, applyGravity, refillBoard, resetStates } from '../game/resolution.js';
 import { calculateWaveScore, getHypeEvent } from '../game/scoring.js';
 import { hasAnyValidMoves, reshuffleBoard } from '../game/board.js';
 import SoundManager from '../sound/SoundManager.js';
 
+// Hard lock — nothing else can fire until this expires. No exceptions.
+const HYPE_LOCK_MS = 1500;
+
 export default function useGameLoop({
   setBoard, addScore, setResolving, setHypeEvent, addFloatingScore, comboCount,
 }) {
   const chainDepthRef = useRef(0);
-  const lastHypeTimeRef = useRef(0);
   const hypeTimeoutRef = useRef(null);
-  const streakRef = useRef(1);   // initial move streak, stays constant per resolution
-  const dubbaRef = useRef(false); // whether first wave had 2+ simultaneous match groups
+  const hypeActiveRef = useRef(false);
+  const hypeShownThisMoveRef = useRef(false);
+  const streakRef = useRef(1);
+  const dubbaRef = useRef(false);
+
+  // Central dispatcher — hard gate, one event at a time, no overrides
+  const fireHypeEvent = useCallback((hype) => {
+    if (hypeActiveRef.current) return;
+    hypeActiveRef.current = true;
+    if (hypeTimeoutRef.current) clearTimeout(hypeTimeoutRef.current);
+    setHypeEvent(hype);
+    SoundManager.play('bazinga');
+    hypeTimeoutRef.current = setTimeout(() => {
+      setHypeEvent(null);
+      hypeTimeoutRef.current = null;
+      hypeActiveRef.current = false;
+    }, HYPE_LOCK_MS);
+  }, [setHypeEvent]);
 
   const resolveBoard = useCallback((currentBoard, currentCombo, onComplete) => {
     setResolving(true);
     chainDepthRef.current = 0;
     streakRef.current = currentCombo || 1;
     dubbaRef.current = false;
+    hypeShownThisMoveRef.current = false;
 
     function resolveStep(board, runningCombo) {
       const matchGroups = findMatchGroups(board);
@@ -61,7 +80,7 @@ export default function useGameLoop({
       // Sound: pop once per wave
       SoundManager.play('pop');
 
-      // Check hype event — pass streak, chain depth, group count, dubba flag, and group sizes
+      // Check hype — only the first qualifying wave per player move fires anything
       const groupSizes = matchGroups.map(g => g.length);
       const hype = getHypeEvent(
         streakRef.current,
@@ -70,19 +89,9 @@ export default function useGameLoop({
         dubbaRef.current,
         groupSizes,
       );
-      if (hype) {
-        const now = Date.now();
-        if (now - lastHypeTimeRef.current > HYPE_THROTTLE) {
-          lastHypeTimeRef.current = now;
-          // Clear any pending hype dismissal before setting new one
-          if (hypeTimeoutRef.current) clearTimeout(hypeTimeoutRef.current);
-          setHypeEvent(hype);
-          SoundManager.play('bazinga');
-          hypeTimeoutRef.current = setTimeout(() => {
-            setHypeEvent(null);
-            hypeTimeoutRef.current = null;
-          }, HYPE_DISPLAY_DURATION);
-        }
+      if (hype && !hypeShownThisMoveRef.current) {
+        hypeShownThisMoveRef.current = true; // lock out every later wave this move
+        fireHypeEvent(hype);
       }
 
       chainDepthRef.current++;
@@ -104,7 +113,7 @@ export default function useGameLoop({
     }
 
     resolveStep(currentBoard, currentCombo || 1);
-  }, [setBoard, addScore, setResolving, setHypeEvent, addFloatingScore]);
+  }, [setBoard, addScore, setResolving, fireHypeEvent, addFloatingScore]);
 
-  return { resolveBoard };
+  return { resolveBoard, fireHypeEvent };
 }

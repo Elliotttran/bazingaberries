@@ -11,7 +11,6 @@ export default function ComboMeter({ comboCount, active }) {
       return;
     }
 
-    // Animate the ring depleting over COMBO_WINDOW ms
     setProgress(1);
     const start = Date.now();
     let raf;
@@ -29,14 +28,13 @@ export default function ComboMeter({ comboCount, active }) {
     return () => cancelAnimationFrame(raf);
   }, [active, comboCount]);
 
-  if (!active || comboCount === 0) return null;
-
-  const urgent = progress < 0.25;
+  const isActive = active && comboCount > 0;
+  const urgent = isActive && progress < 0.25;
   const circumference = 2 * Math.PI * 18;
-  const offset = circumference * (1 - progress);
+  const offset = isActive ? circumference * (1 - progress) : circumference;
 
   return (
-    <div className={`combo-meter ${urgent ? 'combo-meter--urgent' : ''}`}>
+    <div className={`combo-meter ${urgent ? 'combo-meter--urgent' : ''} ${!isActive ? 'combo-meter--empty' : ''}`}>
       <svg className="combo-meter__ring" viewBox="0 0 40 40">
         <circle
           className="combo-meter__track"
@@ -55,7 +53,9 @@ export default function ComboMeter({ comboCount, active }) {
           transform="rotate(-90 20 20)"
         />
       </svg>
-      <span className="combo-meter__count">{comboCount}x</span>
+      <span className="combo-meter__count">
+        {isActive ? `${comboCount}x` : '1x'}
+      </span>
     </div>
   );
 }
