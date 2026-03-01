@@ -48,6 +48,37 @@ function playWithPitch(name, pitch = 1.0) {
   }).catch(() => {});
 }
 
+// BGM via Web Audio — gapless looping
+let bgmSource = null;
+let bgmGain = null;
+let bgmToken = 0;
+
+function playBgm(name) {
+  stopBgm();
+  const token = ++bgmToken;
+  loadAudioBuffer(name).then(buffer => {
+    if (token !== bgmToken) return; // superseded by a later call
+    if (!buffer) return;
+    const ctx = getAudioContext();
+    bgmSource = ctx.createBufferSource();
+    bgmSource.buffer = buffer;
+    bgmSource.loop = true;
+    bgmGain = ctx.createGain();
+    bgmGain.gain.value = muted ? 0 : volume * 0.10;
+    bgmSource.connect(bgmGain);
+    bgmGain.connect(ctx.destination);
+    bgmSource.start();
+  }).catch(() => {});
+}
+
+function stopBgm() {
+  if (bgmSource) {
+    try { bgmSource.stop(); } catch (_) {}
+    bgmSource = null;
+    bgmGain = null;
+  }
+}
+
 function preload() {
   Object.entries(assets.sounds).forEach(([name, path]) => {
     try {
@@ -63,6 +94,7 @@ function preload() {
 function unlock() {
   if (unlocked) return;
   unlocked = true;
+  getAudioContext(); // resume AudioContext so queued BGM starts
   Object.values(audioCache).forEach(audio => {
     const p = audio.play();
     if (p && p.then) {
@@ -96,6 +128,7 @@ function playThrottled(name, intervalMs) {
 
 function setMuted(val) {
   muted = val;
+  if (bgmGain) bgmGain.gain.value = val ? 0 : volume * 0.10;
 }
 
 function isMuted() {
@@ -112,6 +145,8 @@ const SoundManager = {
   play,
   playThrottled,
   playWithPitch,
+  playBgm,
+  stopBgm,
   setMuted,
   isMuted,
   setVolume,

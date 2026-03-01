@@ -79,7 +79,8 @@ export default function useGameLoop({
 
       // Sound: pop + pitched clar1 per wave (2 semitones up per combo step)
       SoundManager.play('pop');
-      const pitch = Math.pow(2, Math.min((runningCombo - 1) * 4, 28) / 12);
+      // const pitch = Math.pow(2, Math.min((runningCombo - 1) * 4, 28) / 12); // 8 stages
+      const pitch = Math.pow(2, Math.min((runningCombo - 1) * 4, 16) / 12); // 5 stages
       SoundManager.playWithPitch('collect', pitch);
 
       // Check hype — only the first qualifying wave per player move fires anything

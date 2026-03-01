@@ -8,6 +8,7 @@ import { attemptSwap } from '../game/swap.js';
 import { cloneBoard } from '../game/helpers.js';
 import { findHint } from '../game/board.js';
 import SoundManager from '../sound/SoundManager.js';
+// Audio state (muted, bgmOn) is managed in App and applied globally via SoundManager
 import Board from './Board.jsx';
 import HUD from './HUD.jsx';
 import HypeOverlay from './HypeOverlay.jsx';
@@ -39,11 +40,6 @@ export default function GameShell({ mode, onHome }) {
   const hintTimerRef = useRef(null);
 
   const [hintTiles, setHintTiles] = useState(null);
-  const [muted, setMuted] = useState(false);
-
-  useEffect(() => {
-    SoundManager.preload();
-  }, []);
 
   // Check score milestones
   useEffect(() => {
@@ -82,12 +78,6 @@ export default function GameShell({ mode, onHome }) {
     comboActiveRef.current = false;
     setComboCount(0);
   }, [setComboCount]);
-
-  const toggleMute = useCallback(() => {
-    const next = !muted;
-    setMuted(next);
-    SoundManager.setMuted(next);
-  }, [muted]);
 
   const clearHint = useCallback(() => {
     if (hintTimerRef.current) clearTimeout(hintTimerRef.current);
@@ -249,24 +239,6 @@ export default function GameShell({ mode, onHome }) {
             <rect x="5" y="17" width="6" height="1.5" rx="0.75" fill="currentColor" opacity="0.7"/>
             <rect x="5.5" y="15" width="5" height="1"   rx="0.5"  fill="currentColor" opacity="0.5"/>
           </svg>
-        </button>
-        <button
-          className={`game-action-btn${muted ? ' game-action-btn--muted' : ''}`}
-          onClick={toggleMute}
-          aria-label="Toggle sound"
-        >
-          {muted
-            ? <svg width="18" height="16" viewBox="0 0 18 16" fill="none">
-                <path d="M2 5H5L9 1v14l-4-4H2a1 1 0 01-1-1V6a1 1 0 011-1z" fill="currentColor" opacity="0.9"/>
-                <line x1="12" y1="4" x2="17" y2="12" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-                <line x1="17" y1="4" x2="12" y2="12" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-              </svg>
-            : <svg width="18" height="16" viewBox="0 0 18 16" fill="none">
-                <path d="M2 5H5L9 1v14l-4-4H2a1 1 0 01-1-1V6a1 1 0 011-1z" fill="currentColor" opacity="0.9"/>
-                <path d="M12 4c1.5 1 2.5 2.8 2.5 4s-1 3-2.5 4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" fill="none"/>
-                <path d="M14.5 1.5c2.5 1.8 4 4.3 4 6.5s-1.5 4.7-4 6.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" fill="none" opacity="0.6"/>
-              </svg>
-          }
         </button>
       </div>
       <HypeOverlay event={hypeEvent} />
