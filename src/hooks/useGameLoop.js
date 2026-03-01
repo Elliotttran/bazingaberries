@@ -77,8 +77,10 @@ export default function useGameLoop({
         console.log(`[RESOLVE] points=${points}, multiplier=${multiplier}x`);
       }
 
-      // Sound: pop once per wave
+      // Sound: pop + pitched clar1 per wave (2 semitones up per combo step)
       SoundManager.play('pop');
+      const pitch = Math.pow(2, Math.min((runningCombo - 1) * 4, 28) / 12);
+      SoundManager.playWithPitch('clar1', pitch);
 
       // Check hype — only the first qualifying wave per player move fires anything
       const groupSizes = matchGroups.map(g => g.length);

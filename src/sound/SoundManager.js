@@ -6,6 +6,48 @@ let muted = false;
 let volume = 0.7;
 let unlocked = false;
 
+// Web Audio API — for pitch-shifted playback
+let audioCtx = null;
+const audioBufferCache = {};
+
+function getAudioContext() {
+  if (!audioCtx) {
+    audioCtx = new (window.AudioContext || window['webkitAudioContext'])();
+  }
+  if (audioCtx.state === 'suspended') {
+    audioCtx.resume().catch(() => {});
+  }
+  return audioCtx;
+}
+
+async function loadAudioBuffer(name) {
+  if (audioBufferCache[name]) return audioBufferCache[name];
+  const path = assets.sounds[name];
+  if (!path) return null;
+  const ctx = getAudioContext();
+  const res = await fetch(path);
+  const arrayBuf = await res.arrayBuffer();
+  const audioBuf = await ctx.decodeAudioData(arrayBuf);
+  audioBufferCache[name] = audioBuf;
+  return audioBuf;
+}
+
+function playWithPitch(name, pitch = 1.0) {
+  if (muted) return;
+  loadAudioBuffer(name).then(buffer => {
+    if (!buffer) return;
+    const ctx = getAudioContext();
+    const source = ctx.createBufferSource();
+    source.buffer = buffer;
+    source.playbackRate.value = pitch;
+    const gain = ctx.createGain();
+    gain.gain.value = volume * 0.5;
+    source.connect(gain);
+    gain.connect(ctx.destination);
+    source.start();
+  }).catch(() => {});
+}
+
 function preload() {
   Object.entries(assets.sounds).forEach(([name, path]) => {
     try {
@@ -69,6 +111,7 @@ const SoundManager = {
   unlock,
   play,
   playThrottled,
+  playWithPitch,
   setMuted,
   isMuted,
   setVolume,
