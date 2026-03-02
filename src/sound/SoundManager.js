@@ -35,16 +35,19 @@ async function loadAudioBuffer(name) {
 function playWithPitch(name, pitch = 1.0) {
   if (muted) return;
   loadAudioBuffer(name).then(buffer => {
-    if (!buffer) return;
+    if (!buffer || muted) return;
     const ctx = getAudioContext();
-    const source = ctx.createBufferSource();
-    source.buffer = buffer;
-    source.playbackRate.value = pitch;
-    const gain = ctx.createGain();
-    gain.gain.value = volume * 0.5;
-    source.connect(gain);
-    gain.connect(ctx.destination);
-    source.start();
+    return (ctx.state === 'suspended' ? ctx.resume() : Promise.resolve()).then(() => {
+      if (muted) return;
+      const source = ctx.createBufferSource();
+      source.buffer = buffer;
+      source.playbackRate.value = pitch;
+      const gain = ctx.createGain();
+      gain.gain.value = volume * 0.5;
+      source.connect(gain);
+      gain.connect(ctx.destination);
+      source.start();
+    });
   }).catch(() => {});
 }
 
