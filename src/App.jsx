@@ -4,19 +4,46 @@ import MenuScreen from './components/MenuScreen.jsx';
 import GameShell from './components/GameShell.jsx';
 import BgFx from './components/BgFx.jsx';
 import FoliageCurtain from './components/FoliageCurtain.jsx';
+import LoadingScreen from './components/LoadingScreen.jsx';
 import SoundManager from './sound/SoundManager.js';
+import assets from './theme/assets.js';
 
 // Add ?play to the URL to skip the menu during development
 const DEV_SKIP = new URLSearchParams(window.location.search).has('play');
+
+const PRELOAD_IMAGES = [
+  '/img/Logo.png',
+  '/img/foliage/cover1.png',
+  '/img/foliage/cover2.png',
+  ...Object.values(assets.hypeImages).flat(),
+];
+
+function preloadImages(paths, onProgress) {
+  let loaded = 0;
+  const total = paths.length;
+  if (total === 0) { onProgress(1); return Promise.resolve(); }
+  return Promise.all(
+    paths.map(path => new Promise(resolve => {
+      const img = new Image();
+      img.onload = img.onerror = () => { onProgress(++loaded / total); resolve(); };
+      img.src = path;
+    }))
+  );
+}
 
 export default function App() {
   const [screen, setScreen] = useState(DEV_SKIP ? 'game' : 'menu');
   const [activeMode, setActiveMode] = useState(GAME_MODES[0]);
   // 'closed' = panels in (menu state), 'opening' = animating out, 'closing' = animating in, 'gone' = unmounted
   const [curtain, setCurtain] = useState(DEV_SKIP ? 'gone' : 'closed');
-  const [menuClass, setMenuClass] = useState(DEV_SKIP ? '' : 'screen-enter');
+  const [menuClass, setMenuClass] = useState('');
   const [gameClass, setGameClass] = useState('');
   const curtainTimerRef = useRef(null);
+
+  // Loading screen state
+  const [showLoader, setShowLoader] = useState(!DEV_SKIP);
+  const [loaderExiting, setLoaderExiting] = useState(false);
+  const [loadProgress, setLoadProgress] = useState(0);
 
   // Global audio state — persists across menu/game
   const [muted, setMuted] = useState(false);
@@ -25,6 +52,19 @@ export default function App() {
   useEffect(() => {
     SoundManager.preload();
     SoundManager.playBgm('uke');
+
+    if (!DEV_SKIP) {
+      const minTime = new Promise(r => setTimeout(r, 900));
+      Promise.all([
+        preloadImages(PRELOAD_IMAGES, setLoadProgress),
+        minTime,
+      ]).then(() => {
+        setLoaderExiting(true);
+        // Unmount loader after its exit animation completes (200ms delay + 800ms fade)
+        setTimeout(() => setShowLoader(false), 1020);
+      });
+    }
+
     return () => SoundManager.stopBgm();
   }, []);
 
@@ -79,6 +119,7 @@ export default function App() {
         ? <div className={`screen-wrapper ${menuClass}`}><MenuScreen onPlay={handlePlay} /></div>
         : <div className={`screen-wrapper ${gameClass}`}><GameShell key={activeMode.id} mode={activeMode} onHome={handleHome} /></div>}
       {curtain !== 'gone' && <FoliageCurtain state={curtain} />}
+      {showLoader && <LoadingScreen progress={loadProgress} exiting={loaderExiting} />}
 
       {/* Global audio controls — visible on all screens */}
       <div className="global-actions">
