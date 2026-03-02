@@ -37,6 +37,8 @@ export default function GameShell({ mode, onHome }) {
   const audioUnlocked = useRef(false);
   const comboTimerRef = useRef(null);
   const comboActiveRef = useRef(false);
+  const comboEndTimeRef = useRef(null);
+  const comboFrozenMsRef = useRef(null);
   const hintTimerRef = useRef(null);
 
   const [hintTiles, setHintTiles] = useState(null);
@@ -67,8 +69,11 @@ export default function GameShell({ mode, onHome }) {
   const startComboTimer = useCallback(() => {
     if (comboTimerRef.current) clearTimeout(comboTimerRef.current);
     comboActiveRef.current = true;
+    comboFrozenMsRef.current = null;
+    comboEndTimeRef.current = Date.now() + COMBO_WINDOW;
     comboTimerRef.current = setTimeout(() => {
       comboActiveRef.current = false;
+      comboEndTimeRef.current = null;
       setComboCount(0);
     }, COMBO_WINDOW);
   }, [setComboCount]);
@@ -76,8 +81,37 @@ export default function GameShell({ mode, onHome }) {
   const resetCombo = useCallback(() => {
     if (comboTimerRef.current) clearTimeout(comboTimerRef.current);
     comboActiveRef.current = false;
+    comboEndTimeRef.current = null;
+    comboFrozenMsRef.current = null;
     setComboCount(0);
   }, [setComboCount]);
+
+  // Freeze combo timer while hype is on screen, resume when it clears
+  useEffect(() => {
+    if (!comboActiveRef.current) return;
+    if (hypeEvent) {
+      if (comboEndTimeRef.current !== null) {
+        comboFrozenMsRef.current = Math.max(0, comboEndTimeRef.current - Date.now());
+        clearTimeout(comboTimerRef.current);
+        comboTimerRef.current = null;
+        comboEndTimeRef.current = null;
+      }
+    } else if (comboFrozenMsRef.current !== null) {
+      const remaining = comboFrozenMsRef.current;
+      comboFrozenMsRef.current = null;
+      if (remaining <= 0) {
+        comboActiveRef.current = false;
+        setComboCount(0);
+      } else {
+        comboEndTimeRef.current = Date.now() + remaining;
+        comboTimerRef.current = setTimeout(() => {
+          comboActiveRef.current = false;
+          comboEndTimeRef.current = null;
+          setComboCount(0);
+        }, remaining);
+      }
+    }
+  }, [hypeEvent, setComboCount]);
 
   const clearHint = useCallback(() => {
     if (hintTimerRef.current) clearTimeout(hintTimerRef.current);
@@ -201,6 +235,7 @@ export default function GameShell({ mode, onHome }) {
           timeLeft={timeLeft}
           comboCount={comboCount}
           comboActive={comboActiveRef.current && comboCount > 0}
+          comboPaused={!!hypeEvent}
           mode={mode}
         />
         <div className="game-shell__board-area">

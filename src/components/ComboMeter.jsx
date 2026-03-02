@@ -1,23 +1,29 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { COMBO_WINDOW } from '../constants.js';
 import './ComboMeter.css';
 
-export default function ComboMeter({ comboCount, active }) {
+export default function ComboMeter({ comboCount, active, paused }) {
   const [progress, setProgress] = useState(1);
+  const progressRef = useRef(1);
 
   useEffect(() => {
     if (!active || comboCount === 0) {
+      progressRef.current = 1;
       setProgress(1);
       return;
     }
 
-    setProgress(1);
-    const start = Date.now();
+    if (paused) return; // freeze — cleanup cancelled raf, no new one started
+
+    const startProgress = progressRef.current;
+    const elapsedAlready = (1 - startProgress) * COMBO_WINDOW;
+    const startTime = Date.now();
     let raf;
 
     function tick() {
-      const elapsed = Date.now() - start;
+      const elapsed = elapsedAlready + (Date.now() - startTime);
       const remaining = Math.max(0, 1 - elapsed / COMBO_WINDOW);
+      progressRef.current = remaining;
       setProgress(remaining);
       if (remaining > 0) {
         raf = requestAnimationFrame(tick);
@@ -26,7 +32,7 @@ export default function ComboMeter({ comboCount, active }) {
 
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [active, comboCount]);
+  }, [active, comboCount, paused]);
 
   const isActive = active && comboCount > 0;
   const urgent = isActive && progress < 0.25;

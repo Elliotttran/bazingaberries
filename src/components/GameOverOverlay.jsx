@@ -7,14 +7,13 @@ export default function GameOverOverlay({ visible, score, onRestart, onHome }) {
     <div className="gameover-overlay">
       <div className="gameover-overlay__card">
         <h2 className="gameover-overlay__title">Game Over</h2>
-        <p className="gameover-overlay__score">
-          Final Score: <strong>{score}</strong>
-        </p>
+        <p className="gameover-overlay__score-label">Final Score</p>
+        <p className="gameover-overlay__score-value">{score.toLocaleString()}</p>
         <div className="gameover-overlay__actions">
           <button className="gameover-overlay__btn" onClick={onRestart}>
             Play Again
           </button>
-          <button className="gameover-overlay__btn gameover-overlay__btn--secondary" onClick={onHome}>
+          <button className="gameover-overlay__btn" onClick={onHome}>
             Main Menu
           </button>
         </div>

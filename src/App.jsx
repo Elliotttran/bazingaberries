@@ -51,7 +51,7 @@ export default function App() {
 
   useEffect(() => {
     SoundManager.preload();
-    SoundManager.playBgm('uke');
+    if (DEV_SKIP) SoundManager.playBgm('uke');
 
     if (!DEV_SKIP) {
       const minTime = new Promise(r => setTimeout(r, 900));
@@ -84,6 +84,8 @@ export default function App() {
   const handlePlay = (mode) => {
     setActiveMode(mode);
     setMenuClass('screen-exit');
+    SoundManager.unlock();
+    if (bgmOn) SoundManager.playBgm('uke', 400);
     if (curtainTimerRef.current) clearTimeout(curtainTimerRef.current);
 
     // Wait for menu to fade out, then open curtain + bring in game
@@ -100,6 +102,7 @@ export default function App() {
 
   const handleHome = () => {
     if (curtainTimerRef.current) clearTimeout(curtainTimerRef.current);
+    SoundManager.fadeBgm(600);
     // Game fades out + foliage sweeps back in simultaneously
     setGameClass('screen-exit');
     setCurtain('closing');

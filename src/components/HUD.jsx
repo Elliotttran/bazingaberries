@@ -9,7 +9,7 @@ function formatTime(seconds) {
   return `${m}:${s.toString().padStart(2, '0')}`;
 }
 
-export default function HUD({ score, movesLeft, timeLeft, comboCount, comboActive, mode }) {
+export default function HUD({ score, movesLeft, timeLeft, comboCount, comboActive, comboPaused, mode }) {
   const isTimeAttack = mode?.id === 'time-attack';
   const isEndless = mode?.id === 'endless';
 
@@ -25,7 +25,7 @@ export default function HUD({ score, movesLeft, timeLeft, comboCount, comboActiv
         <div className="hud__block hud__block--combo">
           <span className="hud__label">Combo</span>
           <div className="hud__inset hud__inset--combo">
-            <ComboMeter comboCount={comboCount} active={comboActive} />
+            <ComboMeter comboCount={comboCount} active={comboActive} paused={comboPaused} />
           </div>
         </div>
         {!isEndless && (

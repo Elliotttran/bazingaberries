@@ -53,7 +53,7 @@ let bgmSource = null;
 let bgmGain = null;
 let bgmToken = 0;
 
-function playBgm(name) {
+function playBgm(name, fadeInMs = 0) {
   stopBgm();
   const token = ++bgmToken;
   loadAudioBuffer(name).then(buffer => {
@@ -64,7 +64,13 @@ function playBgm(name) {
     bgmSource.buffer = buffer;
     bgmSource.loop = true;
     bgmGain = ctx.createGain();
-    bgmGain.gain.value = muted ? 0 : volume * 0.10;
+    const targetVol = muted ? 0 : volume * 0.10;
+    if (fadeInMs > 0) {
+      bgmGain.gain.setValueAtTime(0, ctx.currentTime);
+      bgmGain.gain.linearRampToValueAtTime(targetVol, ctx.currentTime + fadeInMs / 1000);
+    } else {
+      bgmGain.gain.value = targetVol;
+    }
     bgmSource.connect(bgmGain);
     bgmGain.connect(ctx.destination);
     bgmSource.start();
@@ -77,6 +83,18 @@ function stopBgm() {
     bgmSource = null;
     bgmGain = null;
   }
+}
+
+function fadeBgm(durationMs = 800) {
+  if (!bgmGain || !bgmSource) return;
+  const ctx = getAudioContext();
+  const source = bgmSource;
+  bgmToken++; // prevent any queued playBgm from starting
+  bgmSource = null;
+  bgmGain.gain.setValueAtTime(bgmGain.gain.value, ctx.currentTime);
+  bgmGain.gain.linearRampToValueAtTime(0, ctx.currentTime + durationMs / 1000);
+  setTimeout(() => { try { source.stop(); } catch (_) {} }, durationMs + 50);
+  bgmGain = null;
 }
 
 function preload() {
@@ -147,6 +165,7 @@ const SoundManager = {
   playWithPitch,
   playBgm,
   stopBgm,
+  fadeBgm,
   setMuted,
   isMuted,
   setVolume,

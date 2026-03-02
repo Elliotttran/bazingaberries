@@ -7,7 +7,7 @@ import { hasAnyValidMoves, reshuffleBoard } from '../game/board.js';
 import SoundManager from '../sound/SoundManager.js';
 
 // Hard lock — nothing else can fire until this expires. No exceptions.
-const HYPE_LOCK_MS = 1500;
+const HYPE_LOCK_MS = 1200;
 
 export default function useGameLoop({
   setBoard, addScore, setResolving, setHypeEvent, addFloatingScore, comboCount,
